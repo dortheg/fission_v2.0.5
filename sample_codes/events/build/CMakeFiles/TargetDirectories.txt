@@ -1,0 +1,3 @@
+/Applications/fission_v2.0.5/sample_codes/events/build/CMakeFiles/rebuild_cache.dir
+/Applications/fission_v2.0.5/sample_codes/events/build/CMakeFiles/edit_cache.dir
+/Applications/fission_v2.0.5/sample_codes/events/build/CMakeFiles/events.dir
