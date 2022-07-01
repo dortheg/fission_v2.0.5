@@ -33,7 +33,7 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
 FILE* openfile(char* name);
 void output_compound(FILE* fp, int Z, int A, double energy_MeV, int niterations);
 void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,
-               int nmultff1, int gmultff1, double PP [5]);
+               int nmultff1, int gmultff1, double PP [5], int Sf);
 void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], 
                         int npart2skip);
 void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]);
@@ -205,6 +205,10 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    int Z1, A1;  // Charge & mass number of fission fragment 1
    int Z2, A2;  // Charge & mass number of fission fragment 2
 
+   int Sf0 = 0;
+   int Sf1 = 0; 
+   int Sf2 = 0;
+
    double W0=msfreya_gsmassn_c_(Z, freyaA);  // ground-state mass of nucleus
    if (msfreya_errorflagset_c_()==1) return false;
    
@@ -227,8 +231,8 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    int ptypes0 [mMax];           // pre-fission ejectile types
    int ptypes1 [mMax];           // types of 1st fission fragment ejectiles
    int ptypes2 [mMax];           // types of 2nd fission fragment ejectiles
-   double preEvapExcEnergyff[2]; // fission fragment pre- and post-evaporation 
-   double postEvapExcEnergyff[2];// excitation energy
+   double preEvapExcEnergyff[2]; // fission fragment pre-evaporation excitation energy
+   double postEvapExcEnergyff[2];// fission fragment post-evaporation excitation energy
    
    msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]));
    if (msfreya_errorflagset_c_()==1) return false;
@@ -284,21 +288,21 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
      }
    }
    //....print results for pre-fission neutrons
-   output_ff(fp, fissionindex+1, Z, freyaA-nmultff0, eps0, nmultff0, gmultff0, P0);
+   output_ff(fp, fissionindex+1, Z, freyaA-nmultff0, eps0, nmultff0, gmultff0, P0, Sf0);
    output_secondaries(fp, ptypes0, particles, 0);
 
    //....print results for fission fragment #1
    // light fission fragment
    double W0_ff1=msfreya_gsmassn_c_(Z1, A1-nmultff1);  // ground-state mass of ff #1
    if (msfreya_errorflagset_c_()==1) return false;
-   output_ff(fp, fissionindex+1, Z1, A1, preEvapExcEnergyff[0], nmultff1, gmultff1, P1);
+   output_ff(fp, fissionindex+1, Z1, A1, preEvapExcEnergyff[0], nmultff1, gmultff1, P1, Sf1);
    output_secondaries(fp, ptypes1, particles, npart0);
 
    //....print results for fission fragment #2
    // heavy fission fragment
    double W0_ff2=msfreya_gsmassn_c_(Z2, A2-nmultff2);  // ground-state mass of ff #2
    if (msfreya_errorflagset_c_()==1) return false;
-   output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2);
+   output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2, Sf2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
    return true;
@@ -310,11 +314,11 @@ void output_compound(FILE* fp, int Z, int A, double energy_MeV, int niterations)
 }
 
 void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,
-               int nmultff, int gmultff, double PP [5]) {
+               int nmultff, int gmultff, double PP [5], int Sf) {
    double s = pow(PP[1],2)+pow(PP[2],2)+pow(PP[3],2);
    double ke_ff=0.5*s/PP[4];
 
-   fprintf(fp, "%8d%5d%5d%10.3f%5d%5d\n", fissionindex, Z, A, exc_erg, nmultff, gmultff);
+   fprintf(fp, "%8d%5d%5d%10.3f%5d%5d%5d\n", fissionindex, Z, A, exc_erg, nmultff, gmultff, Sf);
 /*
    if (0 == s) {
      fprintf(fp, "%7.3f%10.3f%10.3f%10.3f\n", ke_ff, 0., 0., 0.);
