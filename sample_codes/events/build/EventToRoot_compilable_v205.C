@@ -16,6 +16,8 @@ using namespace std;
 
 
 //g++ EventToRoot_compilable_v205.C -o EventToRoot_compilable_v205 `root-config --cflags --libs` -std=c++14
+// ./EventToRoot_compilable_v205
+
 
 int main(){
     //The root tree is based on the event file name. Just adding .root onto it
@@ -165,7 +167,7 @@ int main(){
 
     //Read fission conditions
     eventfile >> Z >> A >> Elab >> nbevent;
-    std::cout << "Z: " << Z << " A: " << A << " Elab: " << Elab << " nbevent: " << nbevent << std::endl; 
+    //std::cout << "Z: " << Z << " A: " << A << " Elab: " << Elab << " nbevent: " << nbevent << std::endl; 
 
     for (i=0;i<nbevent;i++){
         
@@ -183,24 +185,24 @@ int main(){
         // E0	Excitation energy of the fissioning nucleus
         // n0	The number of pre-fission neutrons emitted
         // m0	The number of pre-fission photons emitted
+        // p0(i=0,n)  Kinetic energy of pre-fission neutron #n
+        // p0(1:3,n)  Direction of pre-fission neutron #n
+        // q0(i=0,m)  Kinetic energy of pre-fission photon #m
+        // q0(1:3,m)  Direction of pre-fission photon #m
         /////////////////////////////////////////////////////////////
         
         eventfile >> k0 >> iZ0 >> iA0 >> E0 >> n0 >> m0;
-    	std::cout << "k0: " << k0 << " iZ0: " << iZ0 << " iA0: " << iA0 << " E0: " << E0 << " n0: " << n0 << " m0: " << m0 << std::endl; 
+    	//std::cout << "k0: " << k0 << " iZ0: " << iZ0 << " iA0: " << iA0 << " E0: " << E0 << " n0: " << n0 << " m0: " << m0 << std::endl; 
         
         
         //then ! read neutrons from #0:
         if (n0 > 0) for(n=1;n<=n0;n++){
-         // p0(i=0,n)  Kinetic energy of pre-fission neutron #n
-         // p0(1:3,n)  Direction of pre-fission neutron #n
          eventfile >> p0[0][n] >> p0[1][n] >> p0[2][n]>> p0[3][n];
-         std::cout << "p0[0]: " << p0[0][n] << "p0[1]: " << p0[1][n] << "p0[2]: " << p0[2][n] << "p0[3]: " << p0[3][n] << std::endl;
+         //std::cout << "p0[0]: " << p0[0][n] << "p0[1]: " << p0[1][n] << "p0[2]: " << p0[2][n] << "p0[3]: " << p0[3][n] << std::endl;
         }
         
         // then ! read photons from #0:
         if (m0>0) for(m=1;m<=m0;m++) eventfile >> q0[0][m] >> q0[1][m] >> q0[2][m]>> q0[3][m];
-        // q0(i=0,m)  Kinetic energy of pre-fission photon #m
-        // q0(1:3,m)  Direction of pre-fission photon #m
 
 
         /////////////////////////////////////////////////////////////
@@ -211,10 +213,14 @@ int main(){
         // E1	Excitation energy of primary fragment #1
         // n1	The number of neutrons emitted from #1
         // m1	The number of photons emitted from #1
+        // p1(i=0,n)  Kinetic energy of neutron #n from source #1
+        // p1(1:3,n)  Direction of neutron #n from source #1
+        // q1(i=0,m)  Kinetic energy of photon #m from source #1
+        // q1(1:3,m)  Direction of photon #m from source #1
         /////////////////////////////////////////////////////////////
 
         eventfile >> k1 >> iZ1 >> iAf1 >> E1 >> n1 >> m1;
-        std::cout << "k1: " << k1 << " iZ1: " << iZ1 << " iAf1: " << iAf1 << " E1: " << E1 << " n1: " << n1 << " m1: " << m1 << std::endl;
+        //std::cout << "k1: " << k1 << " iZ1: " << iZ1 << " iAf1: " << iAf1 << " E1: " << E1 << " n1: " << n1 << " m1: " << m1 << std::endl;
 
         iAp1=iAf1-n1;//			! Product mass #1
         
@@ -222,13 +228,9 @@ int main(){
         if (n1>0) for(n=1;n<=n1;n++){
         eventfile >> p1[0][n] >> p1[1][n] >> p1[2][n]>> p1[3][n];
         }
-        // p1(i=0,n)  Kinetic energy of neutron #n from source #1
-        // p1(1:3,n)  Direction of neutron #n from source #1
         
         // then! read photons from #1:
         if (m1>0) for(m=1;m<=m1;m++) eventfile >> q1[0][m] >> q1[1][m] >> q1[2][m]>> q1[3][m];
-        // q1(i=0,m)  Kinetic energy of photon #m from source #1
-        // q1(1:3,m)  Direction of photon #m from source #1
         
 
         /////////////////////////////////////////////////////////////
@@ -239,10 +241,14 @@ int main(){
         // E2	Excitation energy of primary fragment #2
         // n2	The number of neutrons emitted from #2
         // m2	The number of photons emitted from #2
+        // p2(i=0,n)  Kinetic energy of neutron #n from source #2
+        // p2(1:3,n)  Direction of neutron #n from source #2
+        // q2(i=0,m)  Kinetic energy of photon #m from source #2
+        // q2(1:3,m)  Direction of photon #m from source #2
         /////////////////////////////////////////////////////////////
         
         eventfile >> k2 >> iZ2 >> iAf2 >> E2 >> n2 >> m2 ;
-       	std::cout << "k2: " << k2 << " iZ2: " << iZ2 << " iAf2: " << iAf2 << " E2: " << E2 << " n2: " << n2 << " m2: " << m2 << std::endl;
+       	//std::cout << "k2: " << k2 << " iZ2: " << iZ2 << " iAf2: " << iAf2 << " E2: " << E2 << " n2: " << n2 << " m2: " << m2 << std::endl;
 
         iAp2=iAf2-n2;//			! Product mass #2
         
@@ -250,13 +256,9 @@ int main(){
         if (n2>0) for(n=1;n<=n2;n++){
         eventfile >> p2[0][n] >> p2[1][n] >> p2[2][n]>> p2[3][n];
         }
-        // p2(i=0,n)  Kinetic energy of neutron #n from source #2
-        // p2(1:3,n)  Direction of neutron #n from source #2
         
         // then ! read photons from #2:
         if (m2>0) for(m=1;m<=m2;m++) eventfile >> q2[0][m] >> q2[1][m] >> q2[2][m]>> q2[3][m];
-        // q2(i=0,m)  Kinetic energy of photon #m from source #2
-        // q2(1:3,m)  Direction of photon #m from source #2
        
         //Handle multi-chance fission, n0 determines which chance
         if(n0==0){
