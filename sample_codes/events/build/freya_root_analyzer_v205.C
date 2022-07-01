@@ -53,6 +53,15 @@ Q_third: energy from PFG's from third chance
 TH1D *hframe_iAf1;
 TH1D *hframe_iAf2;
 
+TH1D *hframe_m0;
+TH1D *hframe_m1;
+TH1D *hframe_m2;
+
+TH1D *hframe_Q1;
+TH1D *hframe_Q2;
+TH1D *hframe_Qtot;
+
+
 void create_frames();
 
 
@@ -60,13 +69,13 @@ void freya_root_analyzer_v205() {
 
 	create_frames();
 
+
 	//////////////////////////////////////
 	//  Fission fragment mass distribution
 	/////////////////////////////////////
 
 	TCanvas *A_yield = new TCanvas("A_yield","Fragment Yield",150,10,990,660);
 	mytree->Draw("iAf1>>hframe_iAf1");
-	hframe_iAf1->SetLineColor(1);
 	mytree->Draw("iAf2>>hframe_iAf2");
 	hframe_iAf1->SetLineColor(2);
 	hframe_iAf1->GetXaxis()->SetTitle("Mass [A]");
@@ -81,9 +90,69 @@ void freya_root_analyzer_v205() {
 	legend_A_yield->AddEntry(hframe_iAf2,     "FF2, heavy","l");
 	legend_A_yield->Draw();
 
+	std::cout << "\n" << std::endl;
+	std::cout << "Avg. initial mass FF1 [A]: " << hframe_iAf1->GetMean() << " Avg. initial mass FF2 [A]: " << hframe_iAf2->GetMean() << std::endl;
+	std::cout << "\n" << std::endl;
 
-	cout << "Initial mass FF1 [A]: " << hframe_iAf1->GetMean() << " Initial mass FF2 [A]: " << hframe_iAf2->GetMean() << endl;
-	cout << "\n" << endl;
+
+	///////////////////////////////////////
+	// Number of fissions
+	///////////////////////////////////////
+	
+	int F = 0;
+	for(int i=0;i<300;i++){
+  		F += hframe_iAf1->GetBinContent(i);
+	}
+	std::cout << "Number of fissions: " << F << std::endl;
+	std::cout << "\n" << std::endl;
+
+	////////////////////////////////////////
+	/// Gamma properties
+	///////////////////////////////////////
+
+	//Gamma multiplicity distribution
+	TCanvas *photon_mult = new TCanvas("gamma_mult","gamma multiplicity",150,10,990,660);
+	mytree->Draw("m1>>hframe_m1");
+	mytree->Draw("m2>>hframe_m2");
+	hframe_m1->SetLineColor(2);
+	hframe_m1->GetXaxis()->SetTitle("Multiplicity");
+	hframe_m1->GetYaxis()->SetTitle("Counts");
+	hframe_m1->SetTitle("Gamma multiplicity");
+	hframe_m1->Draw();
+	hframe_m2->Draw("same");
+
+	//Gamma energy spectrum (individual fragments) -> Needs to be normalized to counts/(MeV*F)
+	TCanvas *gamma_spectrum = new TCanvas("gamma_spectrum","Gamma Energy Spectrum ",150,10,990,660);
+	gamma_spectrum->SetLogy();
+	mytree->Draw("Q1>>hframe_Q1");
+	mytree->Draw("Q2>>hframe_Q2");
+	hframe_Q1->SetLineColor(2);
+	hframe_Q1->GetXaxis()->SetTitle("Energy [MeV]");
+	hframe_Q1->GetYaxis()->SetTitle("Counts");
+	hframe_Q1->SetTitle("Gamma spectrum, Per Fragment");
+	hframe_Q1->Draw();
+	hframe_Q2->Draw("same");
+
+	//Gamma energy spectrum (total) -> Needs to be normalized to counts/(MeV*F)
+	TCanvas *gamma_spectrum_total = new TCanvas("gamma_spectrum_total","Gamma Energy Spectrum Total ",150,10,990,660);
+	gamma_spectrum_total->SetLogy();
+	hframe_Qtot->Add(hframe_Q1,1.0);
+	hframe_Qtot->Add(hframe_Q2,1.0);
+	hframe_Qtot->GetXaxis()->SetTitle("Energy [MeV]");
+	hframe_Qtot->GetYaxis()->SetTitle("Counts");
+	hframe_Qtot->SetTitle("Total Gamma Spectrum, F1+F2");
+	hframe_Qtot->Draw();
+
+	//Calculate average PFG multiplicity and energy
+	int nbins_Qtot= hframe_Qtot->GetNbinsX();
+	double avg_gamma_multiplicity = 0;
+
+	for (int i=1; i<nbins_Qtot;i++){
+		avg_gamma_multiplicity += hframe_Qtot->GetBinContent(i)/F;
+	}
+
+	std::cout << "Average gamma multiplicity per fission: " << avg_gamma_multiplicity << std::endl;
+	//cout << "\n" << endl;
 }
 
 
@@ -95,6 +164,13 @@ void create_frames() {
 
 	hframe_iAf1 = new TH1D("hframe_iAf1","",250,0,249);
 	hframe_iAf2 = new TH1D("hframe_iAf2","",250,0,249);
+
+	hframe_m1 = new TH1D("hframe_m1","",21,0,20);
+	hframe_m2 = new TH1D("hframe_m2","",21,0,20);
+
+	hframe_Q1 = new TH1D("hframe_Q1", "", 1000,0.001,10);
+	hframe_Q2 = new TH1D("hframe_Q2", "", 1000,0.001,10);
+	hframe_Qtot = new TH1D("hframe_Qtot", "", 1000,0.001,10);
 }
 
 
