@@ -282,7 +282,6 @@ int main(){
             }
         }
 
-
         if(n0==1){
             //Second chance fission
             m_second = m1 + m2;
@@ -324,6 +323,16 @@ int main(){
                 P_third[n1+n]=p2[0][n];
             }
         }
+
+
+        // neutron and gamma energies + vector components
+        for(n=1;n<=n0;n++) {P0[n]=p0[0][n];P0x[n]=p0[1][n];P0y[n]=p0[2][n];P0z[n]=p0[3][n];}
+        for(n=1;n<=n1;n++) {P1[n]=p1[0][n];P1x[n]=p1[1][n];P1y[n]=p1[2][n];P1z[n]=p1[3][n];}
+        for(n=1;n<=n2;n++) {P2[n]=p2[0][n];P2x[n]=p2[1][n];P2y[n]=p2[2][n];P2z[n]=p2[3][n];}
+        
+        for(n=1;n<=m0;n++) {Q0[n]=q0[0][n];Q0x[n]=q0[1][n];Q0y[n]=q0[2][n];Q0z[n]=q0[3][n];}
+        for(n=1;n<=m1;n++) {Q1[n]=q1[0][n];Q1x[n]=q1[1][n];Q1y[n]=q1[2][n];Q1z[n]=q1[3][n];}
+        for(n=1;n<=m2;n++) {Q2[n]=q2[0][n];Q2x[n]=q2[1][n];Q2y[n]=q2[2][n];Q2z[n]=q2[3][n];}
 
         // Fill the Tree
         t1->Fill();
