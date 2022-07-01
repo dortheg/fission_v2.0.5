@@ -3,3 +3,5 @@
 *.root
 EventToRoot_compilable
 EventToRoot_compilable_v205
+.DS_Store
+*.txt
