@@ -71,6 +71,7 @@ int main() {
    // fprintf(fp, "This is the output record from %g MeV n + %d%d -> f (%d events):\n\n", energy_MeV, Z, A, iterations);
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
+   //Here is the FREYA function call
    for (int i=0; i<iterations; i++) {
       if (!FREYA_event(fp, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
