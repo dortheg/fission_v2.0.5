@@ -27,7 +27,7 @@ extern "C" {
 void init(void);
 void initFREYA(int& nisosf, int& nisoif, int& niso,
                int** ZAs, int** fistypes);
-bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart, 
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, 
                  int fissiontype, int*& ZAs, int*& fistypes, int niso
                 );
 FILE* openfile(char* name);
@@ -38,6 +38,8 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
                         int npart2skip);
 void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]);
 
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf);
+
 int main() {
    int iterations=10000;        // Number of fission events to be generated
    double energy_MeV = 25.3e-9; // thermal
@@ -47,6 +49,12 @@ int main() {
    sprintf(outputfilename, "history.res");
    int fissiontype = 1; // 0: spontaneous fission
                         // 1: neutron-induced fission
+
+   //File for writing Ex vs J distribution for Z=52(Te) fragments
+   char outputfilename_ExJ [1024];
+   sprintf(outputfilename_ExJ, "Ex_vs_J_Z=52.dat");
+   FILE* fp_ExJ = openfile(outputfilename_ExJ);
+
 
    int nisosf = 0; // Number of spontaneous fission isotopes
    int nisoif = 0; // Number of induced fission isotopes
@@ -72,7 +80,7 @@ int main() {
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
    for (int i=0; i<iterations; i++) {
-      if (!FREYA_event(fp, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
+      if (!FREYA_event(fp, fp_ExJ, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
          msfreya_geterrors_c_(&errors[0], &errorlength);
          if (errorlength>1) {
@@ -127,7 +135,7 @@ void initFREYA(int& nisosf, int& nisoif, int& niso,
    msfreya_getzas_c_(&(*ZAs[0]),&(*fistypes[0]));
 }
 
-bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart, 
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, 
                  int fissiontype, int*& ZAs, int*& fistypes, int niso
                 ) {
    int isotope = 1000*Z+A;
@@ -305,6 +313,11 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2, Sf2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
+   //Write Ex vs Sf to file for Te(Z=52)
+   if(Z2==52){
+      output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2);
+   }
+
    return true;
 }
 
@@ -345,7 +358,8 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
        s=pow(u,2)+pow(v,2)+pow(w,2);
        ke=0.5*s/wn;
        s=sqrt(s);
-       fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", ke, u/s, v/s, w/s);
+       //fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", ke, u/s, v/s, w/s);
+       fprintf(fp, "%7.3f ", ke);
        count++;
      } else if (-1 == ptypes[i]) break;
    }
@@ -360,7 +374,8 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
        w=particles[i*4+2];
        s=pow(u,2)+pow(v,2)+pow(w,2);
        s=sqrt(s);
-       fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", s, u/s, v/s, w/s);
+       //fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", s, u/s, v/s, w/s);
+       fprintf(fp, "%7.3f ", s);
        count++;
      } else if (-1 == ptypes[i-npart2skip]) break;
    }
@@ -387,3 +402,11 @@ void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, cha
     cout << iterations << " neutron-induced fissions of " << Z << A << " (E=" << E << " MeV)" << endl;
   cout << "output file name: " << outputfilename << endl;
 }
+
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf) {
+   fprintf(fp_ExJ, "%5d%5d%10.3f%5d\n", Z2, A2, exc_erg, Sf);
+
+   return;
+}
+
+
