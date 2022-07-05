@@ -51,6 +51,10 @@ int main(){
     double P2[10],Q2[20],P2x[10],P2y[10],P2z[10],Q2x[20],Q2y[20],Q2z[20];
     double th2,ph2;// azimuthal and polar angles calculated for the fission products
 
+    int Sf0;
+    int Sf1;
+    int Sf2;
+
     int first = 0;
     int second = 0;
     int third = 0;
@@ -116,6 +120,10 @@ int main(){
     
     t1->Branch("Mn", &Mn, "Mn/I"    );
     t1->Branch("Mg", &Mg, "Mg/I"    );
+
+    t1->Branch("Sf0",&Sf0,"Sf0/I");
+    t1->Branch("Sf1",&Sf1,"Sf1/I");
+    t1->Branch("Sf2",&Sf2,"Sf2/I");
     
     t1->Branch("P0",P0,"P0[Mn]/D");
     t1->Branch("P1",P1,"P1[Mn]/D");
@@ -189,11 +197,12 @@ int main(){
         // p0(1:3,n)  Direction of pre-fission neutron #n
         // q0(i=0,m)  Kinetic energy of pre-fission photon #m
         // q0(1:3,m)  Direction of pre-fission photon #m
+        // Sf0:  C.N initial J 
         /////////////////////////////////////////////////////////////
         
-        eventfile >> k0 >> iZ0 >> iA0 >> E0 >> n0 >> m0;
-    	//std::cout << "k0: " << k0 << " iZ0: " << iZ0 << " iA0: " << iA0 << " E0: " << E0 << " n0: " << n0 << " m0: " << m0 << std::endl; 
-        
+        eventfile >> k0 >> iZ0 >> iA0 >> E0 >> n0 >> m0 >> Sf0;
+        //Sf0_f = Sf0;
+    	//std::cout << "k0: " << k0 << " iZ0: " << iZ0 << " iA0: " << iA0 << " E0: " << E0 << " n0: " << n0 << " m0: " << m0 << " Sf0: " << Sf0 << std::endl; 
         
         //then ! read neutrons from #0:
         if (n0 > 0) for(n=1;n<=n0;n++){
@@ -213,14 +222,16 @@ int main(){
         // E1	Excitation energy of primary fragment #1
         // n1	The number of neutrons emitted from #1
         // m1	The number of photons emitted from #1
+        // Sf1  Total J of fragment 1
         // p1(i=0,n)  Kinetic energy of neutron #n from source #1
         // p1(1:3,n)  Direction of neutron #n from source #1
         // q1(i=0,m)  Kinetic energy of photon #m from source #1
         // q1(1:3,m)  Direction of photon #m from source #1
         /////////////////////////////////////////////////////////////
 
-        eventfile >> k1 >> iZ1 >> iAf1 >> E1 >> n1 >> m1;
-        //std::cout << "k1: " << k1 << " iZ1: " << iZ1 << " iAf1: " << iAf1 << " E1: " << E1 << " n1: " << n1 << " m1: " << m1 << std::endl;
+        eventfile >> k1 >> iZ1 >> iAf1 >> E1 >> n1 >> m1 >> Sf1;
+        std::cout << "k1: " << k1 << " iZ1: " << iZ1 << " iAf1: " << iAf1 << " E1: " << E1 << " n1: " << n1 << " m1: " << m1 << " Sf1: " << Sf1 << std::endl;
+        //Sf1_f = Sf1;
 
         iAp1=iAf1-n1;//			! Product mass #1
         
@@ -241,14 +252,16 @@ int main(){
         // E2	Excitation energy of primary fragment #2
         // n2	The number of neutrons emitted from #2
         // m2	The number of photons emitted from #2
+        // Sf2  Total J of fragment 2
         // p2(i=0,n)  Kinetic energy of neutron #n from source #2
         // p2(1:3,n)  Direction of neutron #n from source #2
         // q2(i=0,m)  Kinetic energy of photon #m from source #2
         // q2(1:3,m)  Direction of photon #m from source #2
         /////////////////////////////////////////////////////////////
         
-        eventfile >> k2 >> iZ2 >> iAf2 >> E2 >> n2 >> m2 ;
-       	//std::cout << "k2: " << k2 << " iZ2: " << iZ2 << " iAf2: " << iAf2 << " E2: " << E2 << " n2: " << n2 << " m2: " << m2 << std::endl;
+        eventfile >> k2 >> iZ2 >> iAf2 >> E2 >> n2 >> m2 >> Sf2;
+       	//Sf2_f = Sf2;
+        //std::cout << "k2: " << k2 << " iZ2: " << iZ2 << " iAf2: " << iAf2 << " E2: " << E2 << " n2: " << n2 << " m2: " << m2 << " Sf2: " << Sf2 << std::endl;
 
         iAp2=iAf2-n2;//			! Product mass #2
         

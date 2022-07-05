@@ -288,7 +288,7 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
      }
    }
    //....print results for pre-fission neutrons
-   output_ff(fp, fissionindex+1, Z, freyaA-nmultff0, eps0, nmultff0, gmultff0, P0, Sf0);
+   output_ff(fp, fissionindex+1, Z, freyaA-nmultff0, eps0, nmultff0, gmultff0, P0, 0);
    output_secondaries(fp, ptypes0, particles, 0);
 
    //....print results for fission fragment #1

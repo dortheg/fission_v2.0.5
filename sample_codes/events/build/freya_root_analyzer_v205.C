@@ -61,6 +61,8 @@ TH1D *hframe_Q1;
 TH1D *hframe_Q2;
 TH1D *hframe_Qtot;
 
+TH1D *hframe_Sf1;
+TH1D *hframe_Sf2;
 
 void create_frames();
 
@@ -74,7 +76,7 @@ void freya_root_analyzer_v205() {
 	//  Fission fragment mass distribution
 	/////////////////////////////////////
 
-	TCanvas *A_yield = new TCanvas("A_yield","Fragment Yield",150,10,990,660);
+/*	TCanvas *A_yield = new TCanvas("A_yield","Fragment Yield",150,10,990,660);
 	mytree->Draw("iAf1>>hframe_iAf1");
 	mytree->Draw("iAf2>>hframe_iAf2");
 	hframe_iAf1->SetLineColor(2);
@@ -93,7 +95,7 @@ void freya_root_analyzer_v205() {
 	std::cout << "\n" << std::endl;
 	std::cout << "Avg. initial mass FF1 [A]: " << hframe_iAf1->GetMean() << " Avg. initial mass FF2 [A]: " << hframe_iAf2->GetMean() << std::endl;
 	std::cout << "\n" << std::endl;
-
+*/
 
 	///////////////////////////////////////
 	// Number of fissions
@@ -110,7 +112,7 @@ void freya_root_analyzer_v205() {
 	/// Gamma properties
 	///////////////////////////////////////
 
-	//Gamma multiplicity distribution
+/*	//Gamma multiplicity distribution
 	TCanvas *photon_mult = new TCanvas("gamma_mult","gamma multiplicity",150,10,990,660);
 	mytree->Draw("m1>>hframe_m1");
 	mytree->Draw("m2>>hframe_m2");
@@ -153,6 +155,29 @@ void freya_root_analyzer_v205() {
 
 	std::cout << "Average gamma multiplicity per fission: " << avg_gamma_multiplicity << std::endl;
 	//cout << "\n" << endl;
+*/
+
+	////////////////////////////////////////
+	/// Angular momenta properties
+	///////////////////////////////////////
+
+	//Gamma multiplicity distribution
+	TCanvas *angular_momenta = new TCanvas("angular_momenta","Angular momenta dirstribution",150,10,990,660);
+	mytree->Draw("Sf1>>hframe_Sf1");
+	mytree->Draw("Sf2>>hframe_Sf2");
+	hframe_Sf1->SetLineColor(2);
+	hframe_Sf1->GetXaxis()->SetTitle("Angular momentum [hbar]");
+	hframe_Sf1->GetYaxis()->SetTitle("Counts");
+	hframe_Sf1->SetTitle("Fission fragment angular momentum distribution");
+	hframe_Sf1->Draw();
+	hframe_Sf2->Draw("same");
+
+	auto legend_angmom = new TLegend(0.7,0.75,0.9,0.9);
+	legend_angmom->SetTextSize(0.03);
+	legend_angmom->AddEntry(hframe_Sf1,     "FF1, light,","l");
+	legend_angmom->AddEntry(hframe_Sf2,     "FF2, heavy","l");
+	legend_angmom->Draw();
+
 }
 
 
@@ -171,6 +196,9 @@ void create_frames() {
 	hframe_Q1 = new TH1D("hframe_Q1", "", 1000,0.001,10);
 	hframe_Q2 = new TH1D("hframe_Q2", "", 1000,0.001,10);
 	hframe_Qtot = new TH1D("hframe_Qtot", "", 1000,0.001,10);
+
+	hframe_Sf1 = new TH1D("hframe_Sf1","",21,-1,20);
+	hframe_Sf2 = new TH1D("hframe_Sf2","",21,-1,20);
 }
 
 
