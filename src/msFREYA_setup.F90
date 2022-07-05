@@ -2000,7 +2000,7 @@
        character(len=80) headline              ! Headline of data file	
        character(len=maxDATAPATH+100) dataf
        logical exists
-       integer iZ0,iZ,iA,iAf,iA0,iA1,iA2,iAhalf,l,m, &
+       integer iZ0,iZ,iA,iAf,iA0,iA1,iA2,iAhalf,l,m,Sf0,Sf1,Sf2, &
                i1,i2,jA1,jA2,i, &
                Nth,iN1,iZ1,minA1,maxA1,iZa,iZb,iZ2, &
                iN2,minTKE,maxTKE

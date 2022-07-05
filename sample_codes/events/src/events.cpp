@@ -11,7 +11,7 @@ using namespace std;
 
 extern "C" {
    extern int msfreya_setup_c_();
-   extern int msfreya_event_c_(int,double,double,double*,int*,int*,double*,int*,int*,double*,int*,double*,int*,double*);
+   extern int msfreya_event_c_(int,double,double,double*,int*,int*,double*,int*,int*,double*,int*,double*,int*,double*,int*,int*,int*);
    extern int msfreya_getids_c_(int*,int*,int*);
    extern int msfreya_getffenergies_c_(double*,double*);
    extern int msfreya_getniso_c_(int *,int *);
@@ -71,7 +71,6 @@ int main() {
    // fprintf(fp, "This is the output record from %g MeV n + %d%d -> f (%d events):\n\n", energy_MeV, Z, A, iterations);
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
-   //Here is the FREYA function call
    for (int i=0; i<iterations; i++) {
       if (!FREYA_event(fp, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
@@ -206,9 +205,9 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    int Z1, A1;  // Charge & mass number of fission fragment 1
    int Z2, A2;  // Charge & mass number of fission fragment 2
 
-   int Sf0 = 0;
-   int Sf1 = 0; 
-   int Sf2 = 0;
+   int Sf0 = 0;  //Total J of initial nucleus
+   int Sf1;  //Total J of fission fragment 1
+   int Sf2;  //Total J of fission fragment 2
 
    double W0=msfreya_gsmassn_c_(Z, freyaA);  // ground-state mass of nucleus
    if (msfreya_errorflagset_c_()==1) return false;
@@ -235,7 +234,7 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    double preEvapExcEnergyff[2]; // fission fragment pre-evaporation excitation energy
    double postEvapExcEnergyff[2];// fission fragment post-evaporation excitation energy
    
-   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]));
+   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]),&Sf0,&Sf1,&Sf2);
    if (msfreya_errorflagset_c_()==1) return false;
 
    msfreya_getids_c_(&(ptypes0[0]),&(ptypes1[0]),&(ptypes2[0]));

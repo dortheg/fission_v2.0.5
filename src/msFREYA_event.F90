@@ -68,7 +68,7 @@
 !       yielding the linear & angular momenta as well as the total excitation.
 
       SUBROUTINE msfreya_event_c(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir) &
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0,Sf1,Sf2) &
       bind (C, name="msfreya_event_c_")
 !
 !      This subroutine serves as an "overloaded" function for
@@ -89,6 +89,7 @@
       real (kind=c_double), dimension(1:3) :: ndir   ! normalized direction of the incident neutron
                                                     ! (0,0,0) for random
       integer (kind=c_int) :: iZ1,iA1,iZ2,iA2
+      integer (kind=c_int) :: Sf0,Sf1,Sf2
       integer (kind=c_int) :: m
       real (kind=c_double), dimension(4,3*mMax) :: p
       integer (kind=c_int), dimension(3*mMax) :: id
@@ -101,6 +102,7 @@
       double precision, dimension(1:3) :: ndir_f   ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1_f,iA1_f,iZ2_f,iA2_f
+      integer :: Sf0_f,Sf1_f,Sf2_f
       integer :: m_f
       double precision, dimension(4,3*mMax) :: p_f
       integer, dimension(3*mMax) :: id_f
@@ -112,11 +114,14 @@
       ndir_f=dble(ndir)
 
       call msfreya_event(iK_f,Einc_f,eps0_f,PP0_f,iZ1_f,iA1_f,PP1_f,&
-                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f)
+                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f,Sf0_f,Sf1_f,Sf2_f)
       iA1=int(iA1_f,kind=c_int)
       iZ1=int(iZ1_f,kind=c_int)
       iA2=int(iA2_f,kind=c_int)
       iZ2=int(iZ2_f,kind=c_int)
+      Sf0=int(Sf0_f,kind=c_int)
+      Sf1=int(Sf1_f,kind=c_int)
+      Sf2=int(Sf2_f,kind=c_int)
       m=int(m_f,kind=c_int)
       p=real(p_f,kind=c_double)
       id=int(id_f,kind=c_int)
@@ -130,7 +135,7 @@
 !************************************************************************
 
       SUBROUTINE msfreya_event(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir)
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0,Sf1,Sf2)
 !
 ! called from msFREYA_main to generate one complete fission event:
 !
@@ -146,6 +151,7 @@
 !      ndir       normalized direction of incident neutron. (0,0,0) for random
 ! OUTPUT:
 !      iZ1,iA1    Charge & mass number of product 1;
+!      Sf0,Sf1,Sf2 Total J of compound nuc, FF1, FF2
 !      PP1(0:4)   its exc energy, momentum, and kinetic energy.
 !      iZ2,iA2    Charge & mass number of product 2;
 !      PP2(0:4)   its exc energy, momentum, and kinetic energy.
@@ -199,6 +205,7 @@
       double precision, dimension(1:3) :: ndir     ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1,iA1,iZ2,iA2
+      integer :: Sf0,Sf1,Sf2
       integer :: m
       double precision, dimension(4,3*mMax) :: p
       integer, dimension(3*mMax) :: id ! Ejectile type     
@@ -235,7 +242,7 @@
       ,W2,phi,costh,sinth,ex,ey,ez,cos,sin,Ekin1,Ekin2 &
       ,prob,aA0,angle,c,sina,cosa,cosphi,sinphi,d &
       ,E1rot,E2rot,P12,R, Rot12,Rotm,Rotp,RotRel,RotTot,S0 &
-      ,Sf1,Sf2,S12,S1sq,S1x,S1y,S1z,S2x,S2y,S2z,S2sq,smx,smy &
+      ,S12,S1sq,S1x,S1y,S1z,S2x,S2y,S2z,S2sq,smx,smy &
       ,spx,spy,T,TKE,TS,Tsc,U12 &
       ,var1,var2,w,E0Rot,P00,Q0,SSx,SSy,SSz,Sxyz,cTS,xeps &
       ,alevel0,E00,En0,eps00,pn0,Q00,Q0max,rot00,Smin,Smax,W00 &
