@@ -8,11 +8,11 @@ Ex = np.genfromtxt("Ex_vs_J_Z=52.dat", skip_header=1, usecols=(2))
 
 
 #Define matrix properties
-J_max = 20
+J_max = 60
 J_binwidth = 1
 N_J = int(J_max//J_binwidth)
 
-Ex_max = 30
+Ex_max = 100
 Ex_binwidth = 0.5
 N_Ex = int(Ex_max//Ex_binwidth)
 
