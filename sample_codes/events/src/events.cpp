@@ -38,7 +38,7 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
                         int npart2skip);
 void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]);
 
-void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf);
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf, int nmult, int gmult);
 
 int main() {
    int iterations=10000;        // Number of fission events to be generated
@@ -54,6 +54,7 @@ int main() {
    char outputfilename_ExJ [1024];
    sprintf(outputfilename_ExJ, "Ex_vs_J_Z=52.dat");
    FILE* fp_ExJ = openfile(outputfilename_ExJ);
+   fprintf(fp_ExJ, "   Z2  A2     Ex        J   nmult gmult  \n");
 
 
    int nisosf = 0; // Number of spontaneous fission isotopes
@@ -314,8 +315,8 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
    //Write Ex vs Sf to file for Te(Z=52)
-   if(Z2==52){
-      output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2);
+   if(Z2==52&&A2>=134){
+      output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2, nmultff2, gmultff2);
    }
 
    return true;
@@ -403,8 +404,8 @@ void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, cha
   cout << "output file name: " << outputfilename << endl;
 }
 
-void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf) {
-   fprintf(fp_ExJ, "%5d%5d%10.3f%5d\n", Z2, A2, exc_erg, Sf);
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf, int nmult, int gmult) {
+   fprintf(fp_ExJ, "%5d%5d%10.3f%5d%5d%5d\n", Z2, A2, exc_erg, Sf, nmult, gmult);
 
    return;
 }
