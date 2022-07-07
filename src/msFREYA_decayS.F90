@@ -1315,10 +1315,10 @@
        g1=0.0; if (V2.gt.0.0) g1=(g0-1.0)*pdotV/V2
 ! Boost the photon:
        cc=g0*Ek+g1                               ! cc: convenient coefficient
-       epsk = g0*(Ek+pdotV)                      ! Photon tot=kin energy in LAB
-       p(1,m) = cc*VVx + px                      !>
-       p(2,m) = cc*VVy + py                      ! > Momentum of photon in LAB
-       p(3,m) = cc*VVz + pz                      !>
+       epsk = Ek !g0*(Ek+pdotV)                      ! Photon tot=kin energy in LAB
+       p(1,m) = px !cc*VVx + px                      !>
+       p(2,m) = py !cc*VVy + py                      ! > Momentum of photon in LAB
+       p(3,m) = pz !cc*VVz + pz                      !>
 ! Boost the daughter:
        PP(0)=Ef                                  ! 0: Total daughter rest energy
        Eftot=sqrt(Ef**2+pk**2)                   ! Total daughter energy in CM
