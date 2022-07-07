@@ -42,11 +42,12 @@ int main() {
    double energy_MeV = 0; // Energy: of neuton if fissiontype=1
    int Z = 98;
    int A = 252;
+
    char outputfilename [1024];
-   sprintf(outputfilename, "252Cf.dat");
+   snprintf (outputfilename, sizeof outputfilename, "outfile_%2d_%2d.dat", A, Z);
+
    int fissiontype = 0; // 0: spontaneous fission
                         // 1: neutron-induced fission
-
    if (0==fissiontype){
       cout << iterations << " spontaneous fissions of " << Z << A << endl;
    }
@@ -58,13 +59,13 @@ int main() {
 
    //File for writing Ex vs J distribution for Z=52(Te) fragments
    char outputfilename_ExJ [1024];
-   sprintf(outputfilename_ExJ, "Ex_vs_J_Z=52.dat");
+   snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J_Z=52_%2d_%2d.dat", A, Z);
    FILE* fp_ExJ = openfile(outputfilename_ExJ);
    fprintf(fp_ExJ, "   Z2  A2f    Ex        J   nmult gmult  \n");
 
    //File for writing gamma-energies of 134Te-decay
    char outputfilename_134Tegamma [1024];
-   sprintf(outputfilename_134Tegamma, "134Te_gammadecay.dat");
+   snprintf(outputfilename_134Tegamma, sizeof outputfilename_134Tegamma, "134Te_gammadecay_%2d_%2d.dat", A, Z);
    FILE* fp_134Tegamma = openfile(outputfilename_134Tegamma);
    fprintf(fp_134Tegamma, "   Z2  A2f  nmult  gmult gE1 ....  \n");
 

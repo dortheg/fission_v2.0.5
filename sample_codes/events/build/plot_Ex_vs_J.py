@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 #Import data from file
-J = np.genfromtxt("Ex_vs_J_Z=52.dat", skip_header=1, usecols=(3))
-Ex = np.genfromtxt("Ex_vs_J_Z=52.dat", skip_header=1, usecols=(2))
+J = np.genfromtxt("Ex_vs_J_Z=52_252_98.dat", skip_header=1, usecols=(3))
+Ex = np.genfromtxt("Ex_vs_J_Z=52_252_98.dat", skip_header=1, usecols=(2))
 
 
 #Define matrix properties
