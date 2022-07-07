@@ -8,11 +8,11 @@ Ex = np.genfromtxt("Ex_vs_J_Z=52.dat", skip_header=1, usecols=(2))
 
 
 #Define matrix properties
-J_max = 60
+J_max = 20
 J_binwidth = 1
 N_J = int(J_max//J_binwidth)
 
-Ex_max = 100
+Ex_max = 30
 Ex_binwidth = 0.5
 N_Ex = int(Ex_max//Ex_binwidth)
 
@@ -28,11 +28,12 @@ for i in range(len(Ex)):
 
 #Plot matrix
 plt.imshow(J_vs_Ex, origin="lower", cmap=cm.cividis, extent=[0,J_max,0,Ex_max])
-plt.xlabel('J [hbar]')
-plt.ylabel('Ex [MeV]')
+plt.xlabel('J [hbar]', fontsize=12)
+plt.ylabel('Ex [MeV]', fontsize=12)
+plt.title("J vs Ex Te isotopes")
 
 cbar = plt.colorbar()
-cbar.set_label("Counts")
+cbar.set_label("Counts", fontsize=12)
 
 plt.show()
 

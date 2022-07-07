@@ -26,13 +26,14 @@ extern "C" {
 
 void init(void);
 void initFREYA(int& nisosf, int& nisoif, int& niso, int** ZAs, int** fistypes);
-bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso);
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso);
 FILE* openfile(char* name);
 void output_compound(FILE* fp, int Z, int A, double energy_MeV, int niterations);
 void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,int nmultff1, int gmultff1, double PP [5], int Sf);
 void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], int npart2skip);
 void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]);
 void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf, int nmult, int gmult);
+void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], int npart2skip);
 
 int main() {
 
@@ -59,8 +60,13 @@ int main() {
    char outputfilename_ExJ [1024];
    sprintf(outputfilename_ExJ, "Ex_vs_J_Z=52.dat");
    FILE* fp_ExJ = openfile(outputfilename_ExJ);
-   fprintf(fp_ExJ, "   Z2  A2     Ex        J   nmult gmult  \n");
+   fprintf(fp_ExJ, "   Z2  A2f    Ex        J   nmult gmult  \n");
 
+   //File for writing gamma-energies of 134Te-decay
+   char outputfilename_134Tegamma [1024];
+   sprintf(outputfilename_134Tegamma, "134Te_gammadecay.dat");
+   FILE* fp_134Tegamma = openfile(outputfilename_134Tegamma);
+   fprintf(fp_134Tegamma, "   Z2  A2f  nmult  gmult gE1 ....  \n");
 
    int nisosf = 0; // Number of spontaneous fission isotopes
    int nisoif = 0; // Number of induced fission isotopes
@@ -82,7 +88,7 @@ int main() {
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
    for (int i=0; i<iterations; i++) {
-      if (!FREYA_event(fp, fp_ExJ, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
+      if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
          msfreya_geterrors_c_(&errors[0], &errorlength);
          if (errorlength>1) {
@@ -138,7 +144,7 @@ void initFREYA(int& nisosf, int& nisoif, int& niso,
 }
 
 
-bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso) {
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso) {
    int isotope = 1000*Z+A;
    // if the compound nucleus is ZA, the original nucleus was
    //   ZA for photofission
@@ -314,10 +320,17 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2, Sf2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
+
+
    //Write Ex vs Sf to file for Te(Z=52)
-   //if(Z2==52&&A2>=134){
-   output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2, nmultff2, gmultff2);
-   //}
+   if(Z2==52&&A2>=134){
+      output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2, nmultff2, gmultff2);
+   }
+
+   if(Z2==52 && (A2-nmultff2)==134){
+      fprintf(fp_134Tegamma, "%5d%5d%5d%5d", Z2, A2, nmultff2, gmultff2);
+      output_photons(fp_134Tegamma, ptypes2, particles, npart0+npart1);
+   }
 
    return true;
 }
@@ -365,13 +378,48 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
        s=pow(u,2)+pow(v,2)+pow(w,2);
        s=sqrt(s);
        //fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", s, u/s, v/s, w/s);
-       fprintf(fp, "%7.3f ", s);
+       fprintf(fp, "%7.3f ", s); 
        count++;
      } else if (-1 == ptypes[i-npart2skip]) break;
    }
-   if (count>0) fprintf(fp, "\n");
+   if (count>0){
+      fprintf(fp, "\n");
+   }
    return;
 }
+
+
+void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], int npart2skip) {
+   int count;
+   double u, v, w, s, ke;
+   //....print u,v,w,energy for photons
+   count=0;
+   for (int i=npart2skip; i<mMax; i++) {
+     if (0 == ptypes[i-npart2skip]) {
+       u=particles[i*4];
+       v=particles[i*4+1];
+       w=particles[i*4+2];
+       s=pow(u,2)+pow(v,2)+pow(w,2);
+       s=sqrt(s);
+       //fprintf(fp, "%7.3f%7.3f%7.3f%7.3f ", s, u/s, v/s, w/s);
+       fprintf(fp, "%7.3f ", s); 
+       count++;
+     } else if (-1 == ptypes[i-npart2skip]) break;
+   }
+
+   if (count>0){
+      if (count<20){
+         s = 0;
+         for(int j=count; j<=20;j++){
+            fprintf(fp, "%7.3f ", s);
+         }
+      }
+
+      fprintf(fp, "\n");
+   }
+   return;
+}
+
 
 void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf, int nmult, int gmult) {
    fprintf(fp_ExJ, "%5d%5d%10.3f%5d%5d%5d\n", Z2, A2, exc_erg, Sf, nmult, gmult);
