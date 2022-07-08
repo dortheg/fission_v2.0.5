@@ -1,15 +1,18 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
+#file = "134Te_gammadecay_252_98.dat"
+file = "134Te_gammadecay_238_92.dat"
+
 #Read multiplicities
-gmult = np.genfromtxt("134Te_gammadecay_252_98.dat", skip_header=1, usecols=(3))
+gmult = np.genfromtxt(file, skip_header=1, usecols=(3))
 
 #Create and fill gamma coincidence matrix
 gmult_max = int(max(gmult))
 gamma_matrix = np.zeros((len(gmult),gmult_max))
 
 for i in range(gmult_max):
-	gamma_matrix[:,i] = np.genfromtxt("134Te_gammadecay_252_98.dat", skip_header=1, usecols=(i+4))
+	gamma_matrix[:,i] = np.genfromtxt(file, skip_header=1, usecols=(i+4))
 
 #Create and fill gamma-spectrum
 gamma_max = 15 	#MeV
@@ -24,12 +27,12 @@ for i in range(len(gmult)):
 		gamma_spec[gamma_bin] += 1
 
 #Plot gamma spectrum
-# plt.plot(np.linspace(0,gamma_max,N_gammabins), gamma_spec)
-# plt.title("Gamma spectrum from 134Te (product)", fontsize=14)
-# plt.xlabel("Energy [MeV]", fontsize=14)
-# plt.ylabel("Counts", fontsize=14)
-# plt.grid()
-# plt.show()
+plt.plot(np.linspace(0,gamma_max,N_gammabins), gamma_spec)
+plt.title("Gamma spectrum from 134Te (product)", fontsize=14)
+plt.xlabel("Energy [MeV]", fontsize=14)
+plt.ylabel("Counts", fontsize=14)
+plt.grid()
+plt.show()
 
 
 #############################################

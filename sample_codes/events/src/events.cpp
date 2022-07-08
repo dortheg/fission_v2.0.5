@@ -6,6 +6,7 @@
 #include <math.h>
 #include "stdlib.h"
 #include "Fission.h"
+#include <random>
 
 using namespace std;
 
@@ -38,15 +39,15 @@ void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], in
 int main() {
 
    //Set up fission evens 
-   int iterations=10000;  // Number of fission events to be generated
-   double energy_MeV = 0; // Energy: of neuton if fissiontype=1
-   int Z = 98;
-   int A = 252;
+   int iterations = 1000000;  // Number of fission events to be generated
+   double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
+   int Z = 92;
+   int A = 238;
 
    char outputfilename [1024];
    snprintf (outputfilename, sizeof outputfilename, "outfile_%2d_%2d.dat", A, Z);
 
-   int fissiontype = 0; // 0: spontaneous fission
+   int fissiontype = 1; // 0: spontaneous fission
                         // 1: neutron-induced fission
    if (0==fissiontype){
       cout << iterations << " spontaneous fissions of " << Z << A << endl;
@@ -88,7 +89,22 @@ int main() {
    FILE* fp = openfile(outputfilename);
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
+   FILE* neutron_energy = openfile("neutron_energy.dat");
+
+   std::default_random_engine random_nr_generator;
+   std::normal_distribution<double> neutron_energy_distr(energy_MeV,1.5/2.35);
+
    for (int i=0; i<iterations; i++) {
+
+      //Use nuBall neutron energy distribution
+      if(fissiontype==1){
+         energy_MeV = neutron_energy_distr(random_nr_generator);
+         while(energy_MeV<1.5){
+            energy_MeV = neutron_energy_distr(random_nr_generator); 
+         }
+      }
+      fprintf(neutron_energy, "%10.3f\n", energy_MeV);
+
       if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
          msfreya_geterrors_c_(&errors[0], &errorlength);
