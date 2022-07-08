@@ -36,6 +36,22 @@ for i in range(len(gmult)):
 ###			Isomeric yield ratios		  ###
 #############################################
 
+print("\n")
+print(" 6+ --------------- 164.1 ns")
+print("         | 115              ")
+print("         V                  ")
+print(" 4+ ---------------		   ")
+print("         |        		   ")
+print("         | 297       	   ")
+print("         V         		   ")
+print(" 2+ ---------------		   ")
+print("         |        		   ")
+print("         | 1279       	   ")
+print("         |        		   ")
+print("         V         		   ")
+print(" 0+ ---------------		   ")
+print("         134Te		       ")
+print("\n")
 
 #Calculate isomeric yield ratio: 4+ & 2+ gates
 isomer_populated_4p2p = 0
@@ -51,7 +67,7 @@ for i in range(len(gmult)):
 
 IYR_4p2p = isomer_populated_4p2p/(isomer_populated_4p2p+isomer_not_populated_4p2p)
 
-print("\n IYR 134Te, gate 4+ & 2+: %.3f" % IYR_4p2p)
+print(" IYR 134Te, gate 4+ & 2+: %.3f \n" % IYR_4p2p)
 
 
 #Calculate isomeric yield ratio: only 2+ gate
@@ -68,5 +84,5 @@ for i in range(len(gmult)):
 
 IYR_2p = isomer_populated_2p/(isomer_populated_2p+isomer_not_populated_2p)
 
-print("\n IYR 134Te, gate 2+: %.3f" % IYR_2p)
+print(" IYR 134Te, gate 2+: %.3f \n" % IYR_2p)
 
