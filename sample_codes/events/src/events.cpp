@@ -12,7 +12,7 @@ using namespace std;
 
 extern "C" {
    extern int msfreya_setup_c_();
-   extern int msfreya_event_c_(int,double,double,double*,int*,int*,double*,int*,int*,double*,int*,double*,int*,double*,int*,int*,int*);
+   extern int msfreya_event_c_(int,double,double,double*,int*,int*,double*,int*,int*,double*,int*,double*,int*,double*,double*,int*,int*);
    extern int msfreya_getids_c_(int*,int*,int*);
    extern int msfreya_getffenergies_c_(double*,double*);
    extern int msfreya_getniso_c_(int *,int *);
@@ -27,7 +27,7 @@ extern "C" {
 
 void init(void);
 void initFREYA(int& nisosf, int& nisoif, int& niso, int** ZAs, int** fistypes);
-bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso);
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso);
 FILE* openfile(char* name);
 void output_compound(FILE* fp, int Z, int A, double energy_MeV, int niterations);
 void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,int nmultff1, int gmultff1, double PP [5], int Sf);
@@ -39,7 +39,7 @@ void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], in
 int main() {
 
    //Set up fission evens 
-   int iterations = 1000000;  // Number of fission events to be generated
+   int iterations = 10000;  // Number of fission events to be generated
    double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
@@ -69,6 +69,11 @@ int main() {
    snprintf(outputfilename_134Tegamma, sizeof outputfilename_134Tegamma, "134Te_gammadecay_%2d_%2d.dat", A, Z);
    FILE* fp_134Tegamma = openfile(outputfilename_134Tegamma);
    fprintf(fp_134Tegamma, "   Z2  A2f  nmult  gmult gE1 ....  \n");
+
+   //File for writing angular momenta of CN and fission fragments
+   char outputfilename_angmom [1024];
+   snprintf(outputfilename_angmom, sizeof outputfilename_angmom, "angmom_%2d_%2d.dat", A, Z);
+   FILE* fp_angmom = openfile(outputfilename_angmom);
 
    int nisosf = 0; // Number of spontaneous fission isotopes
    int nisoif = 0; // Number of induced fission isotopes
@@ -100,12 +105,13 @@ int main() {
       if(fissiontype==1){
          energy_MeV = neutron_energy_distr(random_nr_generator);
          while(energy_MeV<1.5){
-            energy_MeV = neutron_energy_distr(random_nr_generator); 
+            energy_MeV = neutron_energy_distr(random_nr_generator);
+            //std::cout << "Stuck in loop" << std::endl; 
          }
       }
       fprintf(neutron_energy, "%10.3f\n", energy_MeV);
 
-      if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
+      if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, fp_angmom, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
          msfreya_geterrors_c_(&errors[0], &errorlength);
          if (errorlength>1) {
@@ -161,7 +167,7 @@ void initFREYA(int& nisosf, int& nisoif, int& niso,
 }
 
 
-bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso) {
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso) {
    int isotope = 1000*Z+A;
    // if the compound nucleus is ZA, the original nucleus was
    //   ZA for photofission
@@ -237,7 +243,7 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int 
    int Z1, A1;  // Charge & mass number of fission fragment 1
    int Z2, A2;  // Charge & mass number of fission fragment 2
 
-   int Sf0 = 0;  //Total J of initial nucleus
+   double S00;  //Total J of initial nucleus
    int Sf1;  //Total J of fission fragment 1
    int Sf2;  //Total J of fission fragment 2
 
@@ -266,7 +272,7 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int 
    double preEvapExcEnergyff[2]; // fission fragment pre-evaporation excitation energy
    double postEvapExcEnergyff[2];// fission fragment post-evaporation excitation energy
    
-   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]),&Sf0,&Sf1,&Sf2);
+   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]),&S00,&Sf1,&Sf2);
    if (msfreya_errorflagset_c_()==1) return false;
 
    msfreya_getids_c_(&(ptypes0[0]),&(ptypes1[0]),&(ptypes2[0]));
@@ -337,17 +343,19 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, int Z, int A, int 
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2, Sf2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
-
-
    //Write Ex vs Sf to file for Te(Z=52)
    if(Z2==52&&A2>=134){
       output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2, nmultff2, gmultff2);
    }
 
+   //Write photons from 134Te-product to file
    if(Z2==52 && (A2-nmultff2)==134){
       fprintf(fp_134Tegamma, "%5d%5d%5d%5d", Z2, A2, nmultff2, gmultff2);
       output_photons(fp_134Tegamma, ptypes2, particles, npart0+npart1);
    }
+
+   //Write angular momentum of CN and FF1 + FF2 to file
+   fprintf(fp_angmom, "%2f%5d%5d\n", S00, Sf1, Sf2);
 
    return true;
 }

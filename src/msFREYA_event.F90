@@ -3,7 +3,7 @@
 ! Written by Ramona Voga <vogt2@llnl.gov>, 
 !            Jørgen Randrup <jrandrup@lbl.gov>, 
 !            Christian Hagmann <hagmann1@llnl.gov>, 
-!            Jérôme Verbeke <verbeke2@llnl.gov>.
+!            Jerome Verbeke <verbeke2@llnl.gov>.
 ! LLNL-CODE-701993.
 ! Title: Fission Reaction Event Yield Algorithm (FREYA), Version: 2.0
 ! OCEC-16-151
@@ -523,7 +523,7 @@
                         mult0,m0,id0,p0)
       if (errorflagset().and.exitonerror()) RETURN
 !       .........................................................
-!!!	if (LOOK) write (L6,905) kEv,iA0,Nth,mult0(1),m0,eps0,iseed,rng(iseed)
+!!!     if (LOOK) write (L6,905) kEv,iA0,Nth,mult0(1),m0,eps0,iseed,rng(iseed)
 !!!  905  format ('PreF:',i6,i4,i2,'=',i2,'=',i2,':',f10.5,i10,f11.7)
 #ifdef WRITEL6
       if (LOOK) write (L6,"(i10,2i5,f10.5,i5,i10)") &
@@ -553,7 +553,7 @@
         if (A.lt.Amin.OR.A.gt.Amax) goto 12
         iA1=int(A+0.5); dA=A-iA1
         if (rng(iseed).lt.dA) iA1=iA1+1
-      ENDIF                                    ! sample P(Af).	********
+      ENDIF                                    ! sample P(Af).  ********
 !!!if (kEv.eq.KRASH) write (L6,"('A:',2i10)") kEv,iseed!!!
 !     write (L6,"(i5,' ->',i5,' +',i5)") iA0, iA1, iA0-iA1 
 ! Choose the charge numbers: (OBS: This must match what is in SCISSION)
@@ -1328,7 +1328,7 @@
        if (LOOK) then
          ! pause
        endif
-!!!	if (kEv.gt.217399) write (L4,"(i10,':',i10)") kEv,iseed!!!
+!!!     if (kEv.gt.217399) write (L4,"(i10,':',i10)") kEv,iseed!!!
   111  format (80('-'))
 
        RETURN
@@ -1593,7 +1593,7 @@
 !       each headed by  n, En, maxE(n), dE      (n=0(1)mEin and En=n*dEn);
 !       followed by maxE(n) lines listing {E(i), Y(i,n)}
 !       where E(i=i*dE, i=1(1)maxE(n), is the pre-eq neutron energy;
-! Note:	All spectra have the SAME bin width dE common to all incident En!
+! Note: All spectra have the SAME bin width dE common to all incident En!
 !------------------------------------------------------------------------
 #ifdef WRITEL6
            write (L6,*) 'Reading spectra PreEq(En) from file ', & 
@@ -1993,9 +1993,9 @@
 !       1-3             momentum
 !        4              total energy
 ! -----------------------------------------------------------------------
-!! This version considers neutron emission FOLLOWED by photon emission;	!!
-!! generally the different decay modes should compete at each stage,	!!
-!! so the present sequential scheme is only preliminary and schematic.	!!
+!! This version considers neutron emission FOLLOWED by photon emission; !!
+!! generally the different decay modes should compete at each stage,    !!
+!! so the present sequential scheme is only preliminary and schematic.  !!
 
        use freyaout
        use freyaconsts
@@ -2020,7 +2020,7 @@
        ,PP(0:4) &               ! Four-momentum of the nucleus (0:M,4:E)
        ,kZ(0:Nk) &              ! Charge number of k-type ejectiles
        ,kA(0:Nk)                ! Mass number of k-type ejectiles
-!     c	,Gamma(0:Nk)		! Partial width for each mode k
+!     c ,Gamma(0:Nk)            ! Partial width for each mode k
        dimension Qm(mMax),epsm(mMax) ! to print if multiplicity exceeds mMax
 
 ! Data for Nk=1:
