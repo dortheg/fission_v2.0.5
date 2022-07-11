@@ -1,8 +1,8 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-#file = "134Te_gammadecay_252_98.dat"
-file = "134Te_gammadecay_238_92.dat"
+file = "134Te_gammadecay_252_98.dat"
+#file = "134Te_gammadecay_238_92.dat"
 
 #Read multiplicities
 gmult = np.genfromtxt(file, skip_header=1, usecols=(3))
