@@ -39,7 +39,7 @@ void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], in
 int main() {
 
    //Set up fission evens 
-   int iterations = 10;  // Number of fission events to be generated
+   int iterations = 1000000;  // Number of fission events to be generated
    double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
@@ -102,11 +102,10 @@ int main() {
    for (int i=0; i<iterations; i++) {
 
       //Use nuBall neutron energy distribution
-      if(fissiontype==1){
+      if(fissiontype==1&&A==238){
          energy_MeV = neutron_energy_distr(random_nr_generator);
          while(energy_MeV<1.5){
             energy_MeV = neutron_energy_distr(random_nr_generator);
-            //std::cout << "Stuck in loop" << std::endl; 
          }
       }
       fprintf(neutron_energy, "%10.3f\n", energy_MeV);
@@ -357,7 +356,7 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    //Write angular momentum of CN and FF1 + FF2 to file
    fprintf(fp_angmom, "%5d%5d%5d\n", Sf0, Sf1, Sf2);
 
-   std::cout << "Sf0: " << Sf0 << std::endl; 
+   //std::cout << "Sf0: " << Sf0 << std::endl; 
 
    return true;
 }

@@ -465,6 +465,7 @@
 !       z=-cos(angle)*sinth
 ! Resulting angular momentum SS0 = S * n x PP0:
         S=S*sqrt(rng(iseed))    ! spin magnitude/direction:
+        Sf0 = S+0.5
         SS0(1)= S*(sin(angle)*costh*cosphi+cos(angle)*sinphi) ! Sx
         SS0(2)= S*(sin(angle)*costh*sinphi-cos(angle)*cosphi) ! Sy
         SS0(3)=-S* sin(angle)*sinth                           ! Sz
@@ -722,9 +723,8 @@
         enddo
         S0=sqrt(SS0(1)**2+SS0(2)**2+SS0(3)**2)
 ! Calculate fragment spin magnitudes:
-        S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)      ! Total spin of fragment 1
-        S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)      ! Total spin of fragment 2
-        Sf0 = S0
+        S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)+0.5 ! Total spin of frag1, +0.5 rounds to closest (instead of down)
+        S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)+0.5 ! Total spin of frag2
 ! Class  E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
 ! Class  E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
         E1rot=hSsq(Sf1)/ROT(iA1)                ! Rotational energy of fragm #1
