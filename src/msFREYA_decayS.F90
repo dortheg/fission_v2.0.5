@@ -1161,7 +1161,8 @@
            do while (epsk.ge.eps)        ! We must demand epsk < eps
    21        eta=0.0
              biasN=biasN+1.0             ! Number of GDR tries
-             do i=0,mp                   ! mp=2: black-body emission
+!             do i=0,mp                   ! mp=2: black-body emission
+             do i=0,2                   ! mp=2: black-body emission, DG
                eta=eta-log(rng(iseed))  ! P(eta)~eta**mp/exp(eta)
              enddo
 !------------------------------------------------------------------------

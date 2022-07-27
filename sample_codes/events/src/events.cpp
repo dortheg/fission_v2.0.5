@@ -102,13 +102,13 @@ int main() {
    for (int i=0; i<iterations; i++) {
 
       //Use nuBall neutron energy distribution
-      if(fissiontype==1&&A==238){
+/*      if(fissiontype==1&&A==238){
          energy_MeV = neutron_energy_distr(random_nr_generator);
          while(energy_MeV<1.5){
             energy_MeV = neutron_energy_distr(random_nr_generator);
          }
       }
-      fprintf(neutron_energy, "%10.3f\n", energy_MeV);
+      fprintf(neutron_energy, "%10.3f\n", energy_MeV);*/
 
       if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, fp_angmom, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
