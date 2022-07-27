@@ -39,24 +39,24 @@ void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], in
 int main() {
 
    //Set up fission evens 
-   int iterations = 1000000;  // Number of fission events to be generated
+   int iterations = 10;  // Number of fission events to be generated
    double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
+   int fissiontype;
 
    char outputfilename [1024];
    snprintf (outputfilename, sizeof outputfilename, "outfile_%2d_%2d.dat", A, Z);
 
-   int fissiontype = 1; // 0: spontaneous fission
-                        // 1: neutron-induced fission
-   if (0==fissiontype){
+   if (energy_MeV==0){
+      fissiontype = 0;
       cout << iterations << " spontaneous fissions of " << Z << A << endl;
    }
-   else{
+
+   if (energy_MeV>0){
+      fissiontype = 1;
       cout << iterations << " neutron-induced fissions of " << Z << A << " (E=" << energy_MeV << " MeV)" << endl;
    }
-   cout << "output file name: " << outputfilename << endl;
-
 
    //File for writing Ex vs J distribution for Z=52(Te) fragments
    char outputfilename_ExJ [1024];
