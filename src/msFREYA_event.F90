@@ -363,9 +363,9 @@
         iA00=iA0                              ! >  compound 
         iN00=iA00-iZ00                        !>   nucleus.
         eps00=abs(Einc)                       !    Excitation (incl rot)
-        S00 = 6 ! DG
-        Sf0 = S00 !DG
-
+   31   S00 = 7 + 1*xnormal(iseed) ! DG; need to implement mean and sigma from events.cpp
+        if (S00.lt.0.0) goto 31
+        SSx = 0; SSy = 0; SSz = 0
 
 #ifdef WRITEL6
         write (L6,"(' Fission of a nucleus having E* =',f7.3,' MeV')") &
@@ -485,6 +485,7 @@
         else                     ! use the specified spin direction (SSx,SSy,SSz):
           SS0(1)=S*SSx; SS0(2)=S*SSy; SS0(3)=S*SSz
         endif
+        Sf0 = S+0.5
       ENDIF
       E0Rot=0.5*S**2/ROT(iA0)    ! Initial rotational energy
       Q0=eps0-E0Rot              ! Statistical energy Q (heat)
