@@ -40,7 +40,7 @@ int main() {
 
    //Set up fission evens 
    int iterations = 10;  // Number of fission events to be generated
-   double energy_MeV = -1.7; // Energy: of neuton if fissiontype=1
+   double energy_MeV = -4; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
    int fissiontype;
@@ -56,6 +56,11 @@ int main() {
    if (energy_MeV>0){
       fissiontype = 1;
       cout << iterations << " neutron-induced fissions of " << Z << A << " (E=" << energy_MeV << " MeV)" << endl;
+   }
+
+   if (energy_MeV<0){
+      fissiontype = 2;
+      cout << iterations << " photofissions of " << Z << A+1 << " (E*=" << -energy_MeV << " MeV)" << endl;
    }
 
    //File for writing Ex vs J distribution for Z=52(Te) fragments
@@ -181,9 +186,11 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    int iKm1=0;
 
    for (iKm1=0; iKm1<niso; iKm1++){
+      cout << ZAs[iKm1] << " " << fissiontype << " " << fistypes[iKm1] << endl;
       if (isotope == ZAs[iKm1] && ((fissiontype==0) == (fistypes[iKm1]==0))) {
          foundfission=true;
-         break;
+         cout << "true" << endl;
+         break; 
       }
       //if(isotope==90232)
    }
@@ -210,11 +217,11 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    double eps0;
    double En;
 
-   std::cout << "fissiontype " << fissiontype << std::endl;
-
    double sepni;
    sepni = msfreya_sepn_c_(iK,Z,freyaA);
    if (msfreya_errorflagset_c_()==1) return false;
+
+
 
    switch (fissiontype) {
       case 0:{
