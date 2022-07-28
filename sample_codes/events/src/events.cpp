@@ -40,7 +40,7 @@ int main() {
 
    //Set up fission evens 
    int iterations = 10;  // Number of fission events to be generated
-   double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
+   double energy_MeV = -1.7; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
    int fissiontype;
@@ -168,20 +168,26 @@ void initFREYA(int& nisosf, int& nisoif, int& niso,
 
 bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, int Z, int A, int fissionindex, double ePart, int fissiontype, int*& ZAs, int*& fistypes, int niso) {
    int isotope = 1000*Z+A;
-   // if the compound nucleus is ZA, the original nucleus was
+   // if the compound nucleus is ZA, the target nucleus was
    //   ZA for photofission
    //   Z(A-1) for neutron-induced fission
-   // treat photofission as if it were neutron-induced fission
-   if (fissiontype==2) isotope--;
+   
+   // treat photofission as if it were neutron-induced fission with negativ energy
+   //if (fissiontype==2) isotope--;
+   //if (fissiontype==1 && ePart<0) isotope--;
    
    // Find the index of the fission/isotope
    bool foundfission=false;
    int iKm1=0;
-   for (iKm1=0; iKm1<niso; iKm1++)
+
+   for (iKm1=0; iKm1<niso; iKm1++){
       if (isotope == ZAs[iKm1] && ((fissiontype==0) == (fistypes[iKm1]==0))) {
          foundfission=true;
          break;
       }
+      //if(isotope==90232)
+   }
+
    if (!foundfission) {
       fprintf(stderr, "ABORT: fission type %d not supported for isotope %d\n", fissiontype, isotope);
       exit(1);
@@ -190,42 +196,51 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    int iK=iKm1+1; // FORTRAN indexing
    int freyaA=isotope-1000*Z;
    // watch out! in freya, the A for induced fission is the A of the 
+
    // compound nucleus (for neutron induced fission, add 1 neutron to the nucleus)
    freyaA+=(fissiontype==0)?0:1;
    msfreya_reseterrorflag_c_();
 
+   //Treat n-induced fission w/negative energy as photofission
+   if(ePart<0){
+      fissiontype=2;
+   }
+
    // Compute nucleus excitation energy for this event
    double eps0;
    double En;
+
+   std::cout << "fissiontype " << fissiontype << std::endl;
+
+   double sepni;
+   sepni = msfreya_sepn_c_(iK,Z,freyaA);
+   if (msfreya_errorflagset_c_()==1) return false;
+
    switch (fissiontype) {
-      case 0:
+      case 0:{
          // spontaneous fission
          eps0 = 0.;
          En=0.;
          break;
-      case 1:
+      }
+      case 1:{
          // neutron-induced fission
-      case 2:
-         // photon-induced fission
-         double sepni;
-         sepni = msfreya_sepn_c_(iK,Z,freyaA);
-         if (msfreya_errorflagset_c_()==1) return false;
-
-         if (fissiontype==1) {
-            // neutron-induced fission
-            eps0 = sepni+ePart;
-            En=ePart;
-         } else if (fissiontype==2) {
-            // photon-induced fission
-            eps0 = ePart;
-            En=ePart-sepni;
-            if (En<0) En=0.;
-         }
+         eps0 = sepni+ePart;
+         En=ePart;
          break;
-      default:
+      }
+      case 2:{ 
+         // photon-induced fission
+         eps0 = abs(ePart);
+         En=ePart;
+         break;
+      }
+
+      default:{
          fprintf(stderr, "ABORT: fission type %d not supported\n", fissiontype);
          exit(1);
          break;
+      }
    }
 
    // ...generate fission event

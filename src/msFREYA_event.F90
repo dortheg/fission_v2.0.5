@@ -363,6 +363,10 @@
         iA00=iA0                              ! >  compound 
         iN00=iA00-iZ00                        !>   nucleus.
         eps00=abs(Einc)                       !    Excitation (incl rot)
+        S00 = 6 ! DG
+        Sf0 = S00 !DG
+
+
 #ifdef WRITEL6
         write (L6,"(' Fission of a nucleus having E* =',f7.3,' MeV')") &
               eps00
