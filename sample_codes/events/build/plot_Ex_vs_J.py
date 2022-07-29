@@ -2,13 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-#file = "Ex_vs_J_Z=52_252_98.dat"
-file = "Ex_vs_J_Z=52_238_92.dat"
+file = "Ex_vs_J_Z=52_238_92_29jul2022.dat"
 
 #Import data from file
 J = np.genfromtxt(file, skip_header=1, usecols=(3))
 Ex = np.genfromtxt(file, skip_header=1, usecols=(2))
-
 
 #Define matrix properties
 J_max = 20
@@ -21,13 +19,13 @@ N_Ex = int(Ex_max//Ex_binwidth)
 
 J_vs_Ex = np.zeros((N_J,N_Ex))
 
+
 #Fill matrix
 for i in range(len(Ex)):
 	J_bin = int(J[i]//J_binwidth)
 	Ex_bin = int(Ex[i]//Ex_binwidth)
 
 	J_vs_Ex[J_bin][Ex_bin] += 1
-
 
 #Plot matrix
 plt.imshow(J_vs_Ex, origin="lower", cmap=cm.cividis, extent=[0,J_max,0,Ex_max])
@@ -39,5 +37,6 @@ cbar = plt.colorbar()
 cbar.set_label("Counts", fontsize=12)
 
 plt.show()
+
 
 

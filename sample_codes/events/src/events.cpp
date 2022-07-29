@@ -39,8 +39,8 @@ void output_photons(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], in
 int main() {
 
    //Set up fission evens 
-   int iterations = 10;  // Number of fission events to be generated
-   double energy_MeV = -4; // Energy: of neuton if fissiontype=1
+   int iterations = 100000;  // Number of fission events to be generated
+   double energy_MeV = 1.7; // Energy: of neuton if fissiontype=1
    int Z = 92;
    int A = 238;
    int fissiontype;
@@ -107,13 +107,13 @@ int main() {
    for (int i=0; i<iterations; i++) {
 
       //Use nuBall neutron energy distribution
-/*      if(fissiontype==1&&A==238){
+      if(fissiontype==1&&A==238){
          energy_MeV = neutron_energy_distr(random_nr_generator);
          while(energy_MeV<1.5){
             energy_MeV = neutron_energy_distr(random_nr_generator);
          }
       }
-      fprintf(neutron_energy, "%10.3f\n", energy_MeV);*/
+      fprintf(neutron_energy, "%10.3f\n", energy_MeV);
 
       if (!FREYA_event(fp, fp_ExJ, fp_134Tegamma, fp_angmom, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
@@ -186,10 +186,10 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    int iKm1=0;
 
    for (iKm1=0; iKm1<niso; iKm1++){
-      cout << ZAs[iKm1] << " " << fissiontype << " " << fistypes[iKm1] << endl;
+      //cout << ZAs[iKm1] << " " << fissiontype << " " << fistypes[iKm1] << endl;
       if (isotope == ZAs[iKm1] && ((fissiontype==0) == (fistypes[iKm1]==0))) {
          foundfission=true;
-         cout << "true" << endl;
+         //cout << "true" << endl;
          break; 
       }
       //if(isotope==90232)
@@ -365,7 +365,7 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, FILE* fp_134Tegamma, FILE* fp_angmom, i
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
    //Write Ex vs Sf to file for Te(Z=52)
-   if(Z2==52&&A2>=134){
+   if(Z2==52&&A2>=134&&A2<=138){
       output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], Sf2, nmultff2, gmultff2);
    }
 
@@ -474,5 +474,4 @@ void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int Sf, int nmult,
 
    return;
 }
-
 
