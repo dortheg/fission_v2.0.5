@@ -1,7 +1,7 @@
 ! Copyright (c) 2016, Lawrence Livermore National Security, LLC.
 ! Produced at the Lawrence Livermore National Laboratory
 ! Written by Ramona Voga <vogt2@llnl.gov>, 
-!            Jørgen Randrup <jrandrup@lbl.gov>, 
+!            JÃ¸rgen Randrup <jrandrup@lbl.gov>, 
 !            Christian Hagmann <hagmann1@llnl.gov>, 
 !            Jerome Verbeke <verbeke2@llnl.gov>.
 ! LLNL-CODE-701993.
