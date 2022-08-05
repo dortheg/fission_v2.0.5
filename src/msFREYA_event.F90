@@ -1,9 +1,9 @@
 ! Copyright (c) 2016, Lawrence Livermore National Security, LLC.
 ! Produced at the Lawrence Livermore National Laboratory
 ! Written by Ramona Voga <vogt2@llnl.gov>, 
-!            JÃ¸rgen Randrup <jrandrup@lbl.gov>, 
+!            Jørgen Randrup <jrandrup@lbl.gov>, 
 !            Christian Hagmann <hagmann1@llnl.gov>, 
-!            Jerome Verbeke <verbeke2@llnl.gov>.
+!            Jérôme Verbeke <verbeke2@llnl.gov>.
 ! LLNL-CODE-701993.
 ! Title: Fission Reaction Event Yield Algorithm (FREYA), Version: 2.0
 ! OCEC-16-151
@@ -68,7 +68,7 @@
 !       yielding the linear & angular momenta as well as the total excitation.
 
       SUBROUTINE msfreya_event_c(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0,Sf1,Sf2) &
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir) &
       bind (C, name="msfreya_event_c_")
 !
 !      This subroutine serves as an "overloaded" function for
@@ -89,7 +89,6 @@
       real (kind=c_double), dimension(1:3) :: ndir   ! normalized direction of the incident neutron
                                                     ! (0,0,0) for random
       integer (kind=c_int) :: iZ1,iA1,iZ2,iA2
-      integer (kind=c_int) :: Sf0,Sf1,Sf2
       integer (kind=c_int) :: m
       real (kind=c_double), dimension(4,3*mMax) :: p
       integer (kind=c_int), dimension(3*mMax) :: id
@@ -102,7 +101,6 @@
       double precision, dimension(1:3) :: ndir_f   ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1_f,iA1_f,iZ2_f,iA2_f
-      integer :: Sf0_f,Sf1_f,Sf2_f
       integer :: m_f
       double precision, dimension(4,3*mMax) :: p_f
       integer, dimension(3*mMax) :: id_f
@@ -114,14 +112,11 @@
       ndir_f=dble(ndir)
 
       call msfreya_event(iK_f,Einc_f,eps0_f,PP0_f,iZ1_f,iA1_f,PP1_f,&
-                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f,Sf0_f,Sf1_f,Sf2_f)
+                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f)
       iA1=int(iA1_f,kind=c_int)
       iZ1=int(iZ1_f,kind=c_int)
       iA2=int(iA2_f,kind=c_int)
       iZ2=int(iZ2_f,kind=c_int)
-      Sf0=int(Sf0_f,kind=c_int)
-      Sf1=int(Sf1_f,kind=c_int)
-      Sf2=int(Sf2_f,kind=c_int)
       m=int(m_f,kind=c_int)
       p=real(p_f,kind=c_double)
       id=int(id_f,kind=c_int)
@@ -135,7 +130,7 @@
 !************************************************************************
 
       SUBROUTINE msfreya_event(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0,Sf1,Sf2)
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir)
 !
 ! called from msFREYA_main to generate one complete fission event:
 !
@@ -151,7 +146,6 @@
 !      ndir       normalized direction of incident neutron. (0,0,0) for random
 ! OUTPUT:
 !      iZ1,iA1    Charge & mass number of product 1;
-!      Sf0,Sf1,Sf2 Total J of compound nuc, FF1, FF2
 !      PP1(0:4)   its exc energy, momentum, and kinetic energy.
 !      iZ2,iA2    Charge & mass number of product 2;
 !      PP2(0:4)   its exc energy, momentum, and kinetic energy.
@@ -205,7 +199,6 @@
       double precision, dimension(1:3) :: ndir     ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1,iA1,iZ2,iA2
-      integer :: Sf0,Sf1,Sf2
       integer :: m
       double precision, dimension(4,3*mMax) :: p
       integer, dimension(3*mMax) :: id ! Ejectile type     
@@ -242,7 +235,7 @@
       ,W2,phi,costh,sinth,ex,ey,ez,cos,sin,Ekin1,Ekin2 &
       ,prob,aA0,angle,c,sina,cosa,cosphi,sinphi,d &
       ,E1rot,E2rot,P12,R, Rot12,Rotm,Rotp,RotRel,RotTot,S0 &
-      ,S12,S1sq,S1x,S1y,S1z,S2x,S2y,S2z,S2sq,smx,smy &
+      ,Sf1,Sf2,S12,S1sq,S1x,S1y,S1z,S2x,S2y,S2z,S2sq,smx,smy &
       ,spx,spy,T,TKE,TS,Tsc,U12 &
       ,var1,var2,w,E0Rot,P00,Q0,SSx,SSy,SSz,Sxyz,cTS,xeps &
       ,alevel0,E00,En0,eps00,pn0,Q00,Q0max,rot00,Smin,Smax,W00 &
@@ -363,10 +356,6 @@
         iA00=iA0                              ! >  compound 
         iN00=iA00-iZ00                        !>   nucleus.
         eps00=abs(Einc)                       !    Excitation (incl rot)
-   31   S00 = 7 + 1*xnormal(iseed) ! DG; need to implement mean and sigma from events.cpp
-        if (S00.lt.0.0) goto 31
-        SSx = 0; SSy = 0; SSz = 0
-
 #ifdef WRITEL6
         write (L6,"(' Fission of a nucleus having E* =',f7.3,' MeV')") &
               eps00
@@ -469,7 +458,6 @@
 !       z=-cos(angle)*sinth
 ! Resulting angular momentum SS0 = S * n x PP0:
         S=S*sqrt(rng(iseed))    ! spin magnitude/direction:
-        Sf0 = S+0.5
         SS0(1)= S*(sin(angle)*costh*cosphi+cos(angle)*sinphi) ! Sx
         SS0(2)= S*(sin(angle)*costh*sinphi-cos(angle)*cosphi) ! Sy
         SS0(3)=-S* sin(angle)*sinth                           ! Sz
@@ -485,7 +473,6 @@
         else                     ! use the specified spin direction (SSx,SSy,SSz):
           SS0(1)=S*SSx; SS0(2)=S*SSy; SS0(3)=S*SSz
         endif
-        Sf0 = S+0.5
       ENDIF
       E0Rot=0.5*S**2/ROT(iA0)    ! Initial rotational energy
       Q0=eps0-E0Rot              ! Statistical energy Q (heat)
@@ -529,7 +516,7 @@
                         mult0,m0,id0,p0)
       if (errorflagset().and.exitonerror()) RETURN
 !       .........................................................
-!!!     if (LOOK) write (L6,905) kEv,iA0,Nth,mult0(1),m0,eps0,iseed,rng(iseed)
+!!!	if (LOOK) write (L6,905) kEv,iA0,Nth,mult0(1),m0,eps0,iseed,rng(iseed)
 !!!  905  format ('PreF:',i6,i4,i2,'=',i2,'=',i2,':',f10.5,i10,f11.7)
 #ifdef WRITEL6
       if (LOOK) write (L6,"(i10,2i5,f10.5,i5,i10)") &
@@ -559,7 +546,7 @@
         if (A.lt.Amin.OR.A.gt.Amax) goto 12
         iA1=int(A+0.5); dA=A-iA1
         if (rng(iseed).lt.dA) iA1=iA1+1
-      ENDIF                                    ! sample P(Af).  ********
+      ENDIF                                    ! sample P(Af).	********
 !!!if (kEv.eq.KRASH) write (L6,"('A:',2i10)") kEv,iseed!!!
 !     write (L6,"(i5,' ->',i5,' +',i5)") iA0, iA1, iA0-iA1 
 ! Choose the charge numbers: (OBS: This must match what is in SCISSION)
@@ -728,16 +715,12 @@
         enddo
         S0=sqrt(SS0(1)**2+SS0(2)**2+SS0(3)**2)
 ! Calculate fragment spin magnitudes:
-        S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)+0.5 ! Total spin of frag1, +0.5 rounds to closest (instead of down)
-        S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)+0.5 ! Total spin of frag2
-
-!        E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
-!        E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
-        
-! DG: These gives zero!!
+        S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)      ! Total spin of fragment 1
+        S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)      ! Total spin of fragment 2
+! Class  E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
+! Class  E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
         E1rot=hSsq(Sf1)/ROT(iA1)                ! Rotational energy of fragm #1
         E2rot=hSsq(Sf2)/ROT(iA2)                ! Rotational energy of fragm #2
-
         if (E1rot+E2rot.ge.epsf) goto 17        ! Erot exceeds epsf, try again!
         epsf=epsf-E1rot-E2rot                   ! Total statistical erg (heat)
 
@@ -756,8 +739,8 @@
       ELSE                                      ! put fragment spins Sf1 & Sf2 to zero:
 !               ---------------------------------------------------------
 ! CAUTION:  I am not so sure that this option will work any longer!!
-         Sf1=0.0; E1rot=0.0                      ! Fragment #1
-         Sf2=0.0; E2rot=0.0                      ! Fragment #2
+        Sf1=0.0; E1rot=0.0                      ! Fragment #1
+        Sf2=0.0; E2rot=0.0                      ! Fragment #2
 ! cL    xL=0.0; xV=0.0
 ! cL    yL=0.0; yV=0.0
 !               ---------------------------------------------------------
@@ -906,8 +889,6 @@
 !          mult1(1)=0     ! no neutron evaporation!!
           id1(mMax)=1
           preEvapE(1)=eps1+E1rot ! Total init E*(#1)
-          eps_out(1)=eps1 
-          Erot_out(1) = E1rot
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps1,SS1,PP1,mult1,m1,id1,p1)
           if (errorflagset().and.exitonerror()) RETURN
@@ -922,8 +903,6 @@
 !          mult2(1)=0     ! no neutron evaporation!!
           id2(mMax)=2
           preEvapE(2)=eps2+E2rot ! Total init E*(#2)
-          eps_out(2) = eps2
-          Erot_out(2) = E2rot
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps2,SS2,PP2,mult2,m2,id2,p2)
           if (errorflagset().and.exitonerror()) RETURN
@@ -1342,7 +1321,7 @@
        if (LOOK) then
          ! pause
        endif
-!!!     if (kEv.gt.217399) write (L4,"(i10,':',i10)") kEv,iseed!!!
+!!!	if (kEv.gt.217399) write (L4,"(i10,':',i10)") kEv,iseed!!!
   111  format (80('-'))
 
        RETURN
@@ -1372,7 +1351,7 @@
       END
 
 !************************************************************************
-      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c, eps_out_c, Erot_out_c) &
+      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c) &
       bind (C, name="msfreya_getffenergies_c_")
 ! called after msfreya_event_c() to retrieve excitation energies of 
 ! fission fragments (pre-evaporation and post-evaporation)
@@ -1384,14 +1363,9 @@
 
       real (kind=c_double), dimension(0:1) :: preevap_c
       real (kind=c_double), dimension(0:1) :: postevap_c
-      real (kind=c_double), dimension(0:1) :: eps_out_c
-      real (kind=c_double), dimension(0:1) :: Erot_out_c
 
       preevap_c=dble(preEvapE)
       postevap_c=dble(postEvapE)
-      eps_out_c = dble(eps_out)
-      Erot_out_c = dble(Erot_out)    
-
 
       RETURN
       END
@@ -1612,7 +1586,7 @@
 !       each headed by  n, En, maxE(n), dE      (n=0(1)mEin and En=n*dEn);
 !       followed by maxE(n) lines listing {E(i), Y(i,n)}
 !       where E(i=i*dE, i=1(1)maxE(n), is the pre-eq neutron energy;
-! Note: All spectra have the SAME bin width dE common to all incident En!
+! Note:	All spectra have the SAME bin width dE common to all incident En!
 !------------------------------------------------------------------------
 #ifdef WRITEL6
            write (L6,*) 'Reading spectra PreEq(En) from file ', & 
@@ -2012,9 +1986,9 @@
 !       1-3             momentum
 !        4              total energy
 ! -----------------------------------------------------------------------
-!! This version considers neutron emission FOLLOWED by photon emission; !!
-!! generally the different decay modes should compete at each stage,    !!
-!! so the present sequential scheme is only preliminary and schematic.  !!
+!! This version considers neutron emission FOLLOWED by photon emission;	!!
+!! generally the different decay modes should compete at each stage,	!!
+!! so the present sequential scheme is only preliminary and schematic.	!!
 
        use freyaout
        use freyaconsts
@@ -2039,7 +2013,7 @@
        ,PP(0:4) &               ! Four-momentum of the nucleus (0:M,4:E)
        ,kZ(0:Nk) &              ! Charge number of k-type ejectiles
        ,kA(0:Nk)                ! Mass number of k-type ejectiles
-!     c ,Gamma(0:Nk)            ! Partial width for each mode k
+!     c	,Gamma(0:Nk)		! Partial width for each mode k
        dimension Qm(mMax),epsm(mMax) ! to print if multiplicity exceeds mMax
 
 ! Data for Nk=1:

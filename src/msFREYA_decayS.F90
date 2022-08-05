@@ -159,7 +159,7 @@
        character(len=1) :: blank = ' '
 
 ! NEW: -------------------------
-       data tmax/3.3E-6/      ! Slowest half-life allowed (sec) [Talou]
+       data tmax/10.0E-9/      ! Slowest half-life allowed (sec) [Talou]
        double precision E,A,S,x,aA,Af,ax,ay,az,bx,by,bz,b
        character(len=70) char70     ! headlines
 !!	dimension El(1),lf(1),F(1)	!! temporary!!
@@ -206,7 +206,7 @@
 !Change maximum isomer half-life considered:
 !      	 tmax=10.0E-9	! Standard
 !	 tmax=10.0E-9	! Verbinski
-!         tmax=1.5E-9  ! Billnert
+         tmax=1.5E-9  ! Billnert
 !	 tmax=5.0E-9	! Wang
          mp=m    ! Power of eta in photon spectrum [std:2]
 #ifdef WRITEL6
@@ -1161,8 +1161,7 @@
            do while (epsk.ge.eps)        ! We must demand epsk < eps
    21        eta=0.0
              biasN=biasN+1.0             ! Number of GDR tries
-!             do i=0,mp                   ! mp=2: black-body emission
-             do i=0,2                   ! mp=2: black-body emission, DG
+             do i=0,mp                   ! mp=2: black-body emission
                eta=eta-log(rng(iseed))  ! P(eta)~eta**mp/exp(eta)
              enddo
 !------------------------------------------------------------------------
@@ -1316,10 +1315,10 @@
        g1=0.0; if (V2.gt.0.0) g1=(g0-1.0)*pdotV/V2
 ! Boost the photon:
        cc=g0*Ek+g1                               ! cc: convenient coefficient
-       epsk = Ek !g0*(Ek+pdotV)                      ! Photon tot=kin energy in LAB
-       p(1,m) = px !cc*VVx + px                      !>
-       p(2,m) = py !cc*VVy + py                      ! > Momentum of photon in LAB
-       p(3,m) = pz !cc*VVz + pz                      !>
+       epsk = g0*(Ek+pdotV)                      ! Photon tot=kin energy in LAB
+       p(1,m) = cc*VVx + px                      !>
+       p(2,m) = cc*VVy + py                      ! > Momentum of photon in LAB
+       p(3,m) = cc*VVz + pz                      !>
 ! Boost the daughter:
        PP(0)=Ef                                  ! 0: Total daughter rest energy
        Eftot=sqrt(Ef**2+pk**2)                   ! Total daughter energy in CM

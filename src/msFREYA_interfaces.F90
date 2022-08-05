@@ -53,7 +53,7 @@
 !
        interface
          subroutine msfreya_event_c(iK,Einc,eps0,PP0,iZ1,iA1, &
-          PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0,Sf1,Sf2) bind (C, name="msfreya_event_c_")
+          PP1,iZ2,iA2,PP2,m,p,id,ndir) bind (C, name="msfreya_event_c_")
            use, intrinsic :: iso_c_binding, only: C_INT, C_DOUBLE
            use freyaparameters
            implicit none
@@ -68,7 +68,6 @@
            ! Direction of the incident neutron (normalized)
            real (kind=c_double), dimension(1:3) :: ndir
            integer (kind=c_int) :: iZ1,iA1,iZ2,iA2
-          integer (kind=c_int) :: Sf0,Sf1,Sf2
            integer (kind=c_int) :: m
            ! Ejectile momenta of all photons and neutrons
            real (kind=c_double), dimension(4,3*mMax) :: p

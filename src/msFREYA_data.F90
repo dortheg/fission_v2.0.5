@@ -603,14 +603,12 @@
       save
 
       integer id0,id1,id2
-      double precision preEvapE,postEvapE,eps_out,Erot_out
+      double precision preEvapE,postEvapE
 
       dimension id0(mMax), &   ! Ejectile type of prefission neutrons
                 id1(mMax), &   ! Ejectile type of 1st fission fragment
                 id2(mMax)      ! Ejectile type of 2nd fission fragment
       dimension preEvapE(2), & ! pre- and post-evaporation excitation 
                 postEvapE(2)   ! energies of fission fragments
-      dimension eps_out(2)     ! statistical Ex before evaporation
-      dimension Erot_out(2)    ! rotational Ex before evaporation
 
       end module freyaID

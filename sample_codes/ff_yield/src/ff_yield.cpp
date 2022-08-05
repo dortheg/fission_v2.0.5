@@ -221,8 +221,6 @@ bool FREYA_event(double ePart, int iso, int fissiontype,
    int Z1, A1;   // Charge & mass number of fission fragment 1
    int Z2, A2;   // Charge & mass number of fission fragment 2
 
-   int Sf0, Sf1, Sf2; // J of CN and the two fragments
-
    double W0=msfreya_gsmassn_c_(Z, freyaA);  // ground-state mass of nucleus
    if (msfreya_errorflagset_c_()==1) return false;
    
@@ -243,7 +241,7 @@ bool FREYA_event(double ePart, int iso, int fissiontype,
    int ptypes1 [mMax];           // types of 1st fission fragment ejectiles
    int ptypes2 [mMax];           // types of 2nd fission fragment ejectiles
    
-   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]),&Sf0,&Sf1,&Sf2);
+   msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]));
    if (msfreya_errorflagset_c_()==1) return false;
 
    msfreya_getids_c_(&(ptypes0[0]),&(ptypes1[0]),&(ptypes2[0]));
