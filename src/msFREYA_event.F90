@@ -730,10 +730,14 @@
 ! Calculate fragment spin magnitudes:
         S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)+0.5 ! Total spin of frag1, +0.5 rounds to closest (instead of down)
         S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)+0.5 ! Total spin of frag2
-! Class  E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
-! Class  E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
+
+!        E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
+!        E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
+        
+! DG: These gives zero!!
         E1rot=hSsq(Sf1)/ROT(iA1)                ! Rotational energy of fragm #1
         E2rot=hSsq(Sf2)/ROT(iA2)                ! Rotational energy of fragm #2
+
         if (E1rot+E2rot.ge.epsf) goto 17        ! Erot exceeds epsf, try again!
         epsf=epsf-E1rot-E2rot                   ! Total statistical erg (heat)
 
@@ -752,8 +756,8 @@
       ELSE                                      ! put fragment spins Sf1 & Sf2 to zero:
 !               ---------------------------------------------------------
 ! CAUTION:  I am not so sure that this option will work any longer!!
-        Sf1=0.0; E1rot=0.0                      ! Fragment #1
-        Sf2=0.0; E2rot=0.0                      ! Fragment #2
+         Sf1=0.0; E1rot=0.0                      ! Fragment #1
+         Sf2=0.0; E2rot=0.0                      ! Fragment #2
 ! cL    xL=0.0; xV=0.0
 ! cL    yL=0.0; yV=0.0
 !               ---------------------------------------------------------
@@ -902,6 +906,8 @@
 !          mult1(1)=0     ! no neutron evaporation!!
           id1(mMax)=1
           preEvapE(1)=eps1+E1rot ! Total init E*(#1)
+          eps_out(1)=eps1 
+          Erot_out(1) = E1rot
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps1,SS1,PP1,mult1,m1,id1,p1)
           if (errorflagset().and.exitonerror()) RETURN
@@ -916,6 +922,8 @@
 !          mult2(1)=0     ! no neutron evaporation!!
           id2(mMax)=2
           preEvapE(2)=eps2+E2rot ! Total init E*(#2)
+          eps_out(2) = eps2
+          Erot_out(2) = E2rot
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps2,SS2,PP2,mult2,m2,id2,p2)
           if (errorflagset().and.exitonerror()) RETURN
@@ -1364,7 +1372,7 @@
       END
 
 !************************************************************************
-      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c) &
+      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c, eps_out_c, Erot_out_c) &
       bind (C, name="msfreya_getffenergies_c_")
 ! called after msfreya_event_c() to retrieve excitation energies of 
 ! fission fragments (pre-evaporation and post-evaporation)
@@ -1376,9 +1384,14 @@
 
       real (kind=c_double), dimension(0:1) :: preevap_c
       real (kind=c_double), dimension(0:1) :: postevap_c
+      real (kind=c_double), dimension(0:1) :: eps_out_c
+      real (kind=c_double), dimension(0:1) :: Erot_out_c
 
       preevap_c=dble(preEvapE)
       postevap_c=dble(postEvapE)
+      eps_out_c = dble(eps_out)
+      Erot_out_c = dble(Erot_out)    
+
 
       RETURN
       END
