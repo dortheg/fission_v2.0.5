@@ -27,7 +27,7 @@ extern "C" {
 void init(void);
 void initFREYA(int& nisosf, int& nisoif, int& niso,
                int** ZAs, int** fistypes);
-bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart, 
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, 
                  int fissiontype, int*& ZAs, int*& fistypes, int niso
                 );
 FILE* openfile(char* name);
@@ -36,15 +36,17 @@ void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,
                int nmultff1, int gmultff1, double PP [5]);
 void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], 
                         int npart2skip);
-void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]);
+
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int nmult, int gmult);
 
 int main() {
    int iterations=10000;        // Number of fission events to be generated
-   double energy_MeV = 25.3e-9; // thermal
-   int Z = 94;
-   int A = 239;
+   double energy_MeV = 1.7; // thermal
+   int Z = 92;
+   int A = 238;
    char outputfilename [1024];
-   sprintf(outputfilename, "history.res");
+   snprintf (outputfilename, sizeof outputfilename, "outfile_%2d_%2d.dat", A, Z);
+
    int fissiontype = 1; // 0: spontaneous fission
                         // 1: neutron-induced fission
 
@@ -64,15 +66,19 @@ int main() {
    initFREYA(nisosf, nisoif, niso, ZAs, fistypes);
    niso=nisosf+nisoif;
 
-   // read in Z, A, energy_MeV, fission type, number of iterations, output file name
-   readinput(Z, A, energy_MeV, fissiontype, iterations, outputfilename);
-
    FILE* fp = openfile(outputfilename);
    // fprintf(fp, "This is the output record from %g MeV n + %d%d -> f (%d events):\n\n", energy_MeV, Z, A, iterations);
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
+   char outputfilename_ExJ [1024];
+   snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J_Z=52_%2d_%2d.dat", A, Z);
+   FILE* fp_ExJ = openfile(outputfilename_ExJ);
+   fprintf(fp_ExJ, "   Z2  A2f    Ex    nmult gmult  \n");
+
+
+
    for (int i=0; i<iterations; i++) {
-      if (!FREYA_event(fp, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
+      if (!FREYA_event(fp, fp_ExJ, Z, A, i, energy_MeV, fissiontype, *ZAs, *fistypes, niso)) {
          int errorlength=maxerrorlength;
          msfreya_geterrors_c_(&errors[0], &errorlength);
          if (errorlength>1) {
@@ -127,7 +133,7 @@ void initFREYA(int& nisosf, int& nisoif, int& niso,
    msfreya_getzas_c_(&(*ZAs[0]),&(*fistypes[0]));
 }
 
-bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart, 
+bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double ePart, 
                  int fissiontype, int*& ZAs, int*& fistypes, int niso
                 ) {
    int isotope = 1000*Z+A;
@@ -301,6 +307,8 @@ bool FREYA_event(FILE* fp, int Z, int A, int fissionindex, double ePart,
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
+   output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2);
+
    return true;
 }
 
@@ -364,22 +372,8 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
    return;
 }
 
-void readinput(int& Z, int& A, double& E, int& fissiontype, int& iterations, char outputfilename [1024]) {
-  cout << "Value of Z: ";
-  cin >> Z;
-  cout << "Value of A: ";
-  cin >> A;
-  cout << "Value of energy (in units of MeV, 0 for spontaneous fission): ";
-  cin >> E;
-  cout << "Number of iterations: ";
-  cin >> iterations;
-  cout << "Output file name: ";
-  cin >> outputfilename;
-  fissiontype=1;
-  if (E<=0) fissiontype=0;
-  if (0==fissiontype)
-    cout << iterations << " spontaneous fissions of " << Z << A << endl;
-  else
-    cout << iterations << " neutron-induced fissions of " << Z << A << " (E=" << E << " MeV)" << endl;
-  cout << "output file name: " << outputfilename << endl;
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int nmult, int gmult) {
+   fprintf(fp_ExJ, "%5d%5d%10.3f%5d%5d\n", Z2, A2, exc_erg, nmult, gmult);
+
+   return;
 }
