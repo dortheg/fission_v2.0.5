@@ -40,8 +40,8 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
 void output_ExJ(FILE* fp_ExJ, int Z2, int A2, int Sf2, double exc_erg, double Erot, double Estat, int nmult, int gmult);
 
 int main() {
-   int iterations=10000;        // Number of fission events to be generated
-   double energy_MeV = 1.7; // thermal
+   int iterations=1000000;        // Number of fission events to be generated
+   double energy_MeV = 1.9; // thermal
    int Z = 92;
    int A = 238;
    char outputfilename [1024];
@@ -312,7 +312,9 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
-   output_ExJ(fp_ExJ, Z2, A2, Sf2_o, preEvapExcEnergyff[1], Erot_o[1], Estat_o[1], nmultff2, gmultff2);
+   if(Z2==52&&A2>=134&&A2<=138){
+      output_ExJ(fp_ExJ, Z2, A2, Sf2_o, preEvapExcEnergyff[1], Erot_o[1], Estat_o[1], nmultff2, gmultff2);
+   }
 
    return true;
 }
