@@ -68,7 +68,7 @@
 !       yielding the linear & angular momenta as well as the total excitation.
 
       SUBROUTINE msfreya_event_c(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir) &
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0_o,Sf1_o,Sf2_o) &
       bind (C, name="msfreya_event_c_")
 !
 !      This subroutine serves as an "overloaded" function for
@@ -89,6 +89,7 @@
       real (kind=c_double), dimension(1:3) :: ndir   ! normalized direction of the incident neutron
                                                     ! (0,0,0) for random
       integer (kind=c_int) :: iZ1,iA1,iZ2,iA2
+      integer (kind=c_int) :: Sf0_o, Sf1_o, Sf2_o 
       integer (kind=c_int) :: m
       real (kind=c_double), dimension(4,3*mMax) :: p
       integer (kind=c_int), dimension(3*mMax) :: id
@@ -101,6 +102,7 @@
       double precision, dimension(1:3) :: ndir_f   ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1_f,iA1_f,iZ2_f,iA2_f
+      integer :: Sf0_o_f, Sf1_o_f, Sf2_o_f
       integer :: m_f
       double precision, dimension(4,3*mMax) :: p_f
       integer, dimension(3*mMax) :: id_f
@@ -112,11 +114,16 @@
       ndir_f=dble(ndir)
 
       call msfreya_event(iK_f,Einc_f,eps0_f,PP0_f,iZ1_f,iA1_f,PP1_f,&
-                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f)
+                         iZ2_f,iA2_f,PP2_f,m_f,p_f,id_f,ndir_f,Sf0_o_f, Sf1_o_f, Sf2_o_f)
       iA1=int(iA1_f,kind=c_int)
       iZ1=int(iZ1_f,kind=c_int)
       iA2=int(iA2_f,kind=c_int)
       iZ2=int(iZ2_f,kind=c_int)
+
+      Sf0_o=int(Sf0_o_f,kind=c_int)
+      Sf1_o=int(Sf1_o_f,kind=c_int)
+      Sf2_o=int(Sf2_o_f,kind=c_int)
+
       m=int(m_f,kind=c_int)
       p=real(p_f,kind=c_double)
       id=int(id_f,kind=c_int)
@@ -130,7 +137,7 @@
 !************************************************************************
 
       SUBROUTINE msfreya_event(iK,Einc,eps0,PP0 &
-      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir)
+      ,iZ1,iA1,PP1,iZ2,iA2,PP2,m,p,id,ndir,Sf0_o,Sf1_o,Sf2_o)
 !
 ! called from msFREYA_main to generate one complete fission event:
 !
@@ -199,6 +206,7 @@
       double precision, dimension(1:3) :: ndir     ! normalized direction of the incident neutron
                                        ! (0,0,0) for random
       integer :: iZ1,iA1,iZ2,iA2
+      integer :: Sf0_o, Sf1_o, Sf2_o
       integer :: m
       double precision, dimension(4,3*mMax) :: p
       integer, dimension(3*mMax) :: id ! Ejectile type     
@@ -304,6 +312,7 @@
       E0=PP0(0)                  ! total REST energy ("mass")
 
       IF (Einc.gt.0.0) THEN ! n-INDUCED: =========================
+        !Sf0_o = 1 !DG
         En0=Einc                              ! Neutron kinetic energy
 #ifdef WRITEL6
         write (L6,"('Neutron-induced fission, En =',f8.3,' MeV =>')") &
@@ -458,6 +467,7 @@
 !       z=-cos(angle)*sinth
 ! Resulting angular momentum SS0 = S * n x PP0:
         S=S*sqrt(rng(iseed))    ! spin magnitude/direction:
+        Sf0_o = S + 0.5 !DG, +0.5 to round to closest (and not down)
         SS0(1)= S*(sin(angle)*costh*cosphi+cos(angle)*sinphi) ! Sx
         SS0(2)= S*(sin(angle)*costh*sinphi-cos(angle)*cosphi) ! Sy
         SS0(3)=-S* sin(angle)*sinth                           ! Sz
@@ -717,6 +727,8 @@
 ! Calculate fragment spin magnitudes:
         S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)      ! Total spin of fragment 1
         S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)      ! Total spin of fragment 2
+        Sf1_o = Sf1 !DG
+        Sf2_o = Sf2 !DG
 ! Class  E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
 ! Class  E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
         E1rot=hSsq(Sf1)/ROT(iA1)                ! Rotational energy of fragm #1
