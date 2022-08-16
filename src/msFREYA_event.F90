@@ -901,6 +901,8 @@
 !          mult1(1)=0     ! no neutron evaporation!!
           id1(mMax)=1
           preEvapE(1)=eps1+E1rot ! Total init E*(#1)
+          Erot_o(1) = E1rot !DG
+          Estat_o(1) = eps1 !DG
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps1,SS1,PP1,mult1,m1,id1,p1)
           if (errorflagset().and.exitonerror()) RETURN
@@ -915,6 +917,8 @@
 !          mult2(1)=0     ! no neutron evaporation!!
           id2(mMax)=2
           preEvapE(2)=eps2+E2rot ! Total init E*(#2)
+          Erot_o(2) = E2rot !DG
+          Estat_o(2) = eps2 !DG
           call msFREYA_reseterrorflag_c()
           call DecayS(iK,1,iZ,iA,eps2,SS2,PP2,mult2,m2,id2,p2)
           if (errorflagset().and.exitonerror()) RETURN
@@ -1363,7 +1367,7 @@
       END
 
 !************************************************************************
-      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c) &
+      SUBROUTINE msfreya_getffenergies_c (preevap_c,postevap_c,Erot_o_c,Estat_o_c) &
       bind (C, name="msfreya_getffenergies_c_")
 ! called after msfreya_event_c() to retrieve excitation energies of 
 ! fission fragments (pre-evaporation and post-evaporation)
@@ -1375,9 +1379,15 @@
 
       real (kind=c_double), dimension(0:1) :: preevap_c
       real (kind=c_double), dimension(0:1) :: postevap_c
+      real (kind=c_double), dimension(0:1) :: Erot_o_c
+      real (kind=c_double), dimension(0:1) :: Estat_o_c
+
 
       preevap_c=dble(preEvapE)
       postevap_c=dble(postEvapE)
+
+      Erot_o_c = dble(Erot_o)
+      Estat_o_c = dble(Estat_o)
 
       RETURN
       END

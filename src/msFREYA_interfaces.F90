@@ -92,7 +92,7 @@
        end interface
 !
        interface
-         subroutine msfreya_getffenergies_c(preevap_c,postevap_c) &
+         subroutine msfreya_getffenergies_c(preevap_c,postevap_c,Erot_o_c,Estat_o_c) &
            bind (C, name="msfreya_getffenergies_c_")
            use, intrinsic :: iso_c_binding, only: C_DOUBLE
            implicit none
@@ -100,6 +100,9 @@
            real (kind=c_double), dimension(0:1) :: preevap_c
            ! Post-evaporation fission fragment excitation energy 
            real (kind=c_double), dimension(0:1) :: postevap_c
+
+           real (kind=c_double), dimension(0:1) :: Erot_o_c
+           real (kind=c_double), dimension(0:1) :: Estat_o_c
          end subroutine msfreya_getffenergies_c
        end interface
 !
