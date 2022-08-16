@@ -35,7 +35,7 @@ for i in range(len(Ex)):
 	J_vs_Ex[J_bin][Ex_bin] += 1
 
 
-#Plot matrix
+# #Plot matrix
 plt.imshow(J_vs_Ex, origin="lower", cmap=cm.cividis, extent=[0,J_max,0,Ex_max])
 plt.xlabel('J [hbar]', fontsize=12)
 plt.ylabel('Ex [MeV]', fontsize=12)
