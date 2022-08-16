@@ -727,8 +727,8 @@
 ! Calculate fragment spin magnitudes:
         S1sq=S1x**2+S1y**2; Sf1=sqrt(S1sq)      ! Total spin of fragment 1
         S2sq=S2x**2+S2y**2; Sf2=sqrt(S2sq)      ! Total spin of fragment 2
-        Sf1_o = Sf1 !DG
-        Sf2_o = Sf2 !DG
+        Sf1_o = Sf1 + 0.5 !DG
+        Sf2_o = Sf2 + 0.5 !DG
 ! Class  E1rot=0.5*S1sq/Rot(iA1)                ! Rotational energy of fragm #1
 ! Class  E2rot=0.5*S2sq/Rot(iA2)                ! Rotational energy of fragm #2
         E1rot=hSsq(Sf1)/ROT(iA1)                ! Rotational energy of fragm #1
