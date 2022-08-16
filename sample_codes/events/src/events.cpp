@@ -37,7 +37,7 @@ void output_ff(FILE* fp, int fissionindex, int Z, int A, double exc_erg,
 void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax], 
                         int npart2skip);
 
-void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int nmult, int gmult);
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, int Sf2, double exc_erg, double Erot, double Estat, int nmult, int gmult);
 
 int main() {
    int iterations=10000;        // Number of fission events to be generated
@@ -73,8 +73,7 @@ int main() {
    char outputfilename_ExJ [1024];
    snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J_Z=52_%2d_%2d.dat", A, Z);
    FILE* fp_ExJ = openfile(outputfilename_ExJ);
-   fprintf(fp_ExJ, "   Z2  A2f    Ex    nmult gmult  \n");
-
+   fprintf(fp_ExJ, "   Z2  A2f    J    Ex         Erot     Estat   nmult  gmult  \n");
 
 
    for (int i=0; i<iterations; i++) {
@@ -245,8 +244,6 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    msfreya_event_c_(iK,En,eps0,&(P0[0]),&Z1,&A1,&(P1[0]),&Z2,&A2,&(P2[0]),&mult,&(particles[0]),&(ptypes[0]),&(ndir[0]),&Sf0_o,&Sf1_o,&Sf2_o);
    if (msfreya_errorflagset_c_()==1) return false;
 
-   //cout << "Sf2_o:" << Sf2_o << endl;
-
    msfreya_getids_c_(&(ptypes0[0]),&(ptypes1[0]),&(ptypes2[0]));
    msfreya_getffenergies_c_(preEvapExcEnergyff,postEvapExcEnergyff,Erot_o,Estat_o);
 
@@ -315,7 +312,7 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    output_ff(fp, fissionindex+1, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2, P2);
    output_secondaries(fp, ptypes2, particles, npart0+npart1);
 
-   output_ExJ(fp_ExJ, Z2, A2, preEvapExcEnergyff[1], nmultff2, gmultff2);
+   output_ExJ(fp_ExJ, Z2, A2, Sf2_o, preEvapExcEnergyff[1], Erot_o[1], Estat_o[1], nmultff2, gmultff2);
 
    return true;
 }
@@ -380,8 +377,9 @@ void output_secondaries(FILE* fp, int ptypes [mMax], double particles [4*3*mMax]
    return;
 }
 
-void output_ExJ(FILE* fp_ExJ, int Z2, int A2, double exc_erg, int nmult, int gmult) {
-   fprintf(fp_ExJ, "%5d%5d%10.3f%5d%5d\n", Z2, A2, exc_erg, nmult, gmult);
+
+void output_ExJ(FILE* fp_ExJ, int Z2, int A2, int Sf2, double exc_erg, double Erot, double Estat, int nmult, int gmult) {
+   fprintf(fp_ExJ, "%5d%5d%5d%10.3f%10.3f%10.3f%5d%5d\n", Z2, A2, Sf2, exc_erg, Erot, Estat, nmult, gmult);
 
    return;
 }
