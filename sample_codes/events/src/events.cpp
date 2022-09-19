@@ -71,7 +71,8 @@ int main() {
    output_compound(fp, Z, A+((fissiontype==0)?0:1), (fissiontype==0)?0.:energy_MeV, iterations);
    
    char outputfilename_ExJ [1024];
-   snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J_Z=52_%2d_%2d.dat", A, Z);
+   //snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J_Z=52_%2d_%2d.dat", A, Z);
+   snprintf(outputfilename_ExJ, sizeof outputfilename_ExJ, "Ex_vs_J.dat", A, Z);
    FILE* fp_ExJ = openfile(outputfilename_ExJ);
    fprintf(fp_ExJ, "   Z2  A2f    J    Ex         Erot     Estat   nmult  gmult  \n");
 
@@ -315,6 +316,10 @@ bool FREYA_event(FILE* fp, FILE* fp_ExJ, int Z, int A, int fissionindex, double 
    if(Z2==52&&A2>=134&&A2<=138){
       output_ExJ(fp_ExJ, Z2, A2, Sf2_o, preEvapExcEnergyff[1], Erot_o[1], Estat_o[1], nmultff2, gmultff2);
    }
+
+   // //Write both fragmets out to file
+   // output_ExJ(fp_ExJ, Z1, A1, Sf1_o, preEvapExcEnergyff[0], Erot_o[0], Estat_o[0], nmultff1, gmultff1);
+   // output_ExJ(fp_ExJ, Z2, A2, Sf2_o, preEvapExcEnergyff[1], Erot_o[1], Estat_o[1], nmultff2, gmultff2);
 
    return true;
 }

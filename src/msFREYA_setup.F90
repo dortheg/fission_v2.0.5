@@ -385,11 +385,11 @@
 
 ! Calculate spin-related quantities:
 ! prepare moments of inertia
-       c=0.3                   ! Reduction of ROT relative to rigid value
+       c=0.5                   ! Reduction of ROT relative to rigid value !DG: ROT - is that MoI?
        allocate(ROT(300))
        do m=1,300
           ROT(m)=0.4*wA*m*RRA(m)**2/hbarc**2 ! Rigid sphere (mass(m)=wA*m)
-          ROT(m)=c*ROT(m)                    ! Reduced by factor 0.3
+          ROT(m)=c*ROT(m)                    ! Reduced by factor c
 #ifdef WRITEL8
           q=0.5/ROT(m)
           if (m.gt.9) &
